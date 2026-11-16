@@ -1,6 +1,7 @@
 name: technique-kb
 version: 1.0.0
 description: Structured knowledge base of attack techniques with preconditions, signals, evidence requirements, and standards mappings
+safety_tier: passive
 bounded_context: TechniqueKnowledgeContext
 owasp_wstg: []
 owasp_api_top10: []

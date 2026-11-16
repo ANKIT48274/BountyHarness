@@ -1,3 +1,8 @@
+---
+name: evaluation-harness
+description: Lab fixture framework for validating bug bounty skills with measurable metrics
+---
+
 # Evaluation Harness
 
 ## Overview

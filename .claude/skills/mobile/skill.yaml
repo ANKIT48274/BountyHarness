@@ -1,6 +1,7 @@
 name: mobile
 version: 2.0.0
 description: Mobile application security — APK/IPA static analysis, Firebase misconfig, WebView vulnerabilities, certificate pinning bypass, deeplinks, Frida hooks
+safety_tier: intrusive
 bounded_context: MobileContext
 owasp_wstg:
   - WSTG-MOBL-01
@@ -28,6 +29,7 @@ input_files:
   - none
 workflows:
   apk-analysis:
+    safety_tier: passive
     description: Run static APK analysis against an operator-provided APK path.
     inputs: [APK_PATH, OUTDIR, CONTEXT]
     command: |
@@ -48,6 +50,7 @@ workflows:
       if_no_findings: frida-ssl-bypass
 
   frida-ssl-bypass:
+    safety_tier: destructive-manual
     description: Launch the existing Frida SSL bypass script for a supplied mobile package.
     inputs: [MOBILE_PACKAGE, OUTDIR]
     command: |

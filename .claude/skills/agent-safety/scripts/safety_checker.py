@@ -21,7 +21,16 @@ def load_context(ctx_path=".bb/context.json"):
     with open(ctx_path) as f:
         return json.load(f)
 
+def resolve_output(output_path, default_name):
+    """Fall back to $OUTDIR/agent-safety/<name> so --output stays optional."""
+    if output_path:
+        return output_path
+    base = Path(os.environ.get("OUTDIR", "output")) / "agent-safety"
+    base.mkdir(parents=True, exist_ok=True)
+    return str(base / default_name)
+
 def sanitize_content(input_path, output_path):
+    output_path = resolve_output(output_path, "sanitized.jsonl")
     if not Path(input_path).exists():
         print(json.dumps({"status": "input_not_found"}))
         return
@@ -39,6 +48,7 @@ def sanitize_content(input_path, output_path):
     print(json.dumps({"status": "sanitized", "modifications": len(modifications)}))
 
 def scan_content(input_path, output_path):
+    output_path = resolve_output(output_path, "scan.jsonl")
     if not Path(input_path).exists():
         print(json.dumps({"status": "input_not_found"}))
         return
@@ -56,6 +66,7 @@ def scan_content(input_path, output_path):
     print(json.dumps({"status": "scanned", "findings": len(findings), "risk_level": entry["risk_level"]}))
 
 def classify_risk(input_path, output_path):
+    output_path = resolve_output(output_path, "classify.json")
     if not Path(input_path).exists():
         print(json.dumps({"status": "input_not_found"}))
         return
@@ -74,6 +85,7 @@ def classify_risk(input_path, output_path):
     print(json.dumps({"status": "classified", "recommendation": report["recommendation"]}))
 
 def guardrail_check(tool_name, params, output_path):
+    output_path = resolve_output(output_path, "guardrail.json")
     dangerous_tools = {"rm", "delete", "drop", "exec", "eval", "write", "ssh", "sudo", "bash", "shell",
                        "execute_command", "database_write", "file_delete", "send_email"}
     decision = {"tool": tool_name, "params": params, "allowed": True, "requires_approval": False,
@@ -87,6 +99,7 @@ def guardrail_check(tool_name, params, output_path):
     print(json.dumps({"status": "guardrail_checked", "allowed": decision["allowed"]}))
 
 def check_browser_output(browser_dir, output_path):
+    output_path = resolve_output(output_path, "browser_output.json")
     src = Path(browser_dir)
     findings = []
     interactables_file = src / "interactables.json"

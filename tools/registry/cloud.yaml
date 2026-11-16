@@ -46,7 +46,7 @@ registry:
       repo: github.com/prowler-cloud/prowler
       install_method: pipx
       binary: prowler
-      version_cmd: "prowler --version"
+      version_cmd: "prowler --version 2>&1 | sed -E 's/ \\(You are.*//'"
       health_cmd: "prowler --version"
       capabilities:
         - cspm_scan

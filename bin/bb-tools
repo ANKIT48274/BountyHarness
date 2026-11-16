@@ -15,6 +15,7 @@ _resolve_repo_root() {
   cd -P "$(dirname "$src")/.." >/dev/null && pwd
 }
 REPO_ROOT="$(_resolve_repo_root)"
+SCRIPT_DIR="$REPO_ROOT/bin"
 HARNESS_VERSION="$(cat "$REPO_ROOT/VERSION" 2>/dev/null || echo "unknown")"
 export REPO_ROOT
 # Prefer a formula-managed venv when present (brew install ships pyyaml there)
@@ -30,7 +31,7 @@ cd "$REPO_ROOT"
 
 # Source context env for PATH if available
 [ -f .bb/context.env ] && source .bb/context.env 2>/dev/null || true
-export PATH="/opt/homebrew/bin:$HOME/.pdtm/go/bin:$HOME/go/bin:$HOME/Library/Python/3.14/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$HOME/google-cloud-sdk/google-cloud-sdk/bin:$HOME/.nvm/versions/node/v22.23.2/bin:/opt/homebrew/bin:$HOME/.pdtm/go/bin:$HOME/go/bin:$HOME/Library/Python/3.14/bin:$PATH"
 
 REGISTRY_DIR="tools/registry"
 LOCK_FILE=".bb/tool-lock.json"
@@ -111,9 +112,10 @@ for f in sorted(glob.glob("tools/registry/*.yaml")):
             # Include description and risk_tier for explain
             entry["category"] = category
             im = entry.get("install_method", "unknown")
-            if im == "pipx":
-                entry["install_method"] = "pip"
-            elif im == "manual":
+            # Preserve pipx: rewriting it to pip routes installs through the
+            # system interpreter, which PEP 668 blocks on modern distros and
+            # pollutes the OS environment. `manual` stays manual.
+            if im == "manual":
                 entry["install_method"] = "manual"
             registry[name] = entry
     except Exception as e:
@@ -231,9 +233,8 @@ for f in sorted(glob.glob("tools/registry/*.yaml")):
                 entry = dict(tool)
                 entry["source_file"] = f
                 im = entry.get("install_method", "unknown")
-                if im == "pipx":
-                    entry["install_method"] = "pip"
-                elif im == "manual":
+                # Preserve pipx; only normalise the literal "manual" label.
+                if im == "manual":
                     entry["install_method"] = "manual"
                 registry[tn] = entry
     except Exception:
@@ -351,7 +352,7 @@ ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 def get_tool_version_info(binary, vcmd):
     if vcmd:
         try:
-            r = subprocess.run(vcmd, shell=True, capture_output=True, text=True, timeout=5)
+            r = subprocess.run(vcmd, shell=True, capture_output=True, text=True, timeout=15)
             lines = [l.strip() for l in (r.stdout + r.stderr).splitlines() if l.strip()]
             hits = [l for l in lines if "version" in l.lower() or "current" in l.lower()]
             return (hits or lines or ["unknown"])[0]
@@ -359,7 +360,7 @@ def get_tool_version_info(binary, vcmd):
             pass
     for flag in ["--version", "-version", "-V", "version"]:
         try:
-            r = subprocess.run([binary, flag], capture_output=True, text=True, timeout=5)
+            r = subprocess.run([binary, flag], capture_output=True, text=True, timeout=15)
             lines = [l.strip() for l in (r.stdout + r.stderr).splitlines() if l.strip()]
             hits = [l for l in lines if "version" in l.lower() or "current" in l.lower()]
             v = (hits or lines or [""])[0]
@@ -380,8 +381,6 @@ for name in tool_names:
     info = registry.get(name, {})
     binary = info.get("binary", name)
     method = info.get("install_method", "unknown")
-    if method == "pipx":
-        method = "pip"
     vcmd = info.get("version_cmd", "")
     installed = shutil.which(binary) is not None
     version = ""
@@ -583,14 +582,14 @@ for name, info in registry.items():
     vcmd = info.get('version_cmd', '')
     if vcmd:
         try:
-            r = subprocess.run(vcmd, shell=True, capture_output=True, text=True, timeout=5)
+            r = subprocess.run(vcmd, shell=True, capture_output=True, text=True, timeout=15)
             version = sel(r.stdout or r.stderr or '')
         except Exception:
             pass
     else:
         for flag in ['--version', '-version', '-V']:
             try:
-                r = subprocess.run([path, flag], capture_output=True, text=True, timeout=5)
+                r = subprocess.run([path, flag], capture_output=True, text=True, timeout=15)
                 version = sel(r.stdout or r.stderr or '')
                 if version != 'unknown':
                     break
@@ -781,12 +780,14 @@ for name,info in d.items():
   while IFS= read -r tool; do
     [ -z "$tool" ] && continue
 
-    local bin method repo vcmd
+    local bin method repo vcmd pkg
     bin=$(echo "$REGISTRY_JSON" | registry_field "$tool" "binary")
     [ -z "$bin" ] && bin="$tool"
     method=$(echo "$REGISTRY_JSON" | registry_field "$tool" "install_method")
     [ -z "$method" ] && method="unknown"
     repo=$(echo "$REGISTRY_JSON" | registry_field "$tool" "repo")
+    pkg=$(echo "$REGISTRY_JSON" | registry_field "$tool" "package")
+    [ -z "$pkg" ] && pkg="$tool"
 
     if binary_on_path "$bin"; then
       echo "$tool: already installed ($bin)"
@@ -823,6 +824,16 @@ for name,info in d.items():
         ;;
       pip)
         cmd="python3 -m pip install $tool"
+        ;;
+      pipx)
+        extra_args=$(echo "$REGISTRY_JSON" | registry_field "$tool" "pipx_args")
+        cmd="pipx install ${BB_PIPX_PYTHON:+--python $BB_PIPX_PYTHON} $extra_args $pkg"
+        ;;
+      npm)
+        cmd="npm install -g $pkg"
+        ;;
+      cargo)
+        cmd="cargo install $pkg"
         ;;
       *)
         echo "$tool: unknown install_method '$method'"
@@ -874,12 +885,14 @@ for name in sorted(d):
   local tool
   while IFS= read -r tool; do
     [ -z "$tool" ] && continue
-    local bin method repo
+    local bin method repo pkg
     bin=$(echo "$REGISTRY_JSON" | registry_field "$tool" "binary")
     [ -z "$bin" ] && bin="$tool"
     method=$(echo "$REGISTRY_JSON" | registry_field "$tool" "install_method")
     [ -z "$method" ] && method="unknown"
     repo=$(echo "$REGISTRY_JSON" | registry_field "$tool" "repo")
+    pkg=$(echo "$REGISTRY_JSON" | registry_field "$tool" "package")
+    [ -z "$pkg" ] && pkg="$tool"
 
     if ! binary_on_path "$bin"; then
       echo "$tool: not installed, skipping update"
@@ -909,6 +922,15 @@ for name in sorted(d):
         ;;
       pip)
         cmd="python3 -m pip install --upgrade $tool"
+        ;;
+      pipx)
+        cmd="pipx upgrade $pkg"
+        ;;
+      npm)
+        cmd="npm install -g $pkg@latest"
+        ;;
+      cargo)
+        cmd="cargo install $pkg"
         ;;
       *)
         echo "$tool: unknown install_method '$method'"
@@ -970,14 +992,14 @@ for name in sorted(registry):
     vcmd = info.get("version_cmd", "")
     if vcmd:
         try:
-            result = subprocess.run(vcmd, shell=True, capture_output=True, text=True, timeout=5)
+            result = subprocess.run(vcmd, shell=True, capture_output=True, text=True, timeout=15)
             version = select_version_line(result.stdout or result.stderr or "")
         except Exception:
             pass
     else:
         for flag in ["--version", "-version", "-V"]:
             try:
-                result = subprocess.run([path, flag], capture_output=True, text=True, timeout=5)
+                result = subprocess.run([path, flag], capture_output=True, text=True, timeout=15)
                 version = select_version_line(result.stdout or result.stderr or "")
                 if version != "unknown":
                     break
@@ -1025,7 +1047,7 @@ def current_version(name, binary_path):
     vcmd = info.get("version_cmd", "")
     if vcmd:
         try:
-            result = subprocess.run(vcmd, shell=True, capture_output=True, text=True, timeout=5)
+            result = subprocess.run(vcmd, shell=True, capture_output=True, text=True, timeout=15)
             selected = select_version_line(result.stdout or result.stderr or "")
             if selected != "unknown":
                 return selected
@@ -1033,7 +1055,7 @@ def current_version(name, binary_path):
             pass
     for flag in ["--version", "-version", "-V", "version"]:
         try:
-            result = subprocess.run([binary_path, flag], capture_output=True, text=True, timeout=5)
+            result = subprocess.run([binary_path, flag], capture_output=True, text=True, timeout=15)
             selected = select_version_line(result.stdout or result.stderr or "")
             if selected != "unknown":
                 return selected

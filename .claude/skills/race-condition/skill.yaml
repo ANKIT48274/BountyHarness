@@ -1,6 +1,7 @@
 name: race-condition
 version: 2.0.0
 description: Race condition detection — coupon/voucher bypass, TOCTOU, multi-step race, rate limit race, database race conditions
+safety_tier: intrusive
 bounded_context: ConcurrencyContext
 owasp_wstg:
   - WSTG-BUSL-05

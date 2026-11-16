@@ -15,7 +15,7 @@ set -eu
 # Override for testing branches/forks: BB_INSTALL_REPO_URL=/local/path ./install.sh
 REPO_URL="${BB_INSTALL_REPO_URL:-https://github.com/Mr-Neutr0n/bounty-harness.git}"
 REPO_NAME="bounty-harness"
-BIN_NAMES="bb-init bb-validate bb-run bb-hunt bb-tools"
+BIN_NAMES="bb-init bb-validate bb-run bb-hunt bb-tools bb-netns"
 
 say()  { printf '%s\n' "$*"; }
 warn() { printf '\033[33m%s\033[0m\n' "$*" >&2; }
@@ -103,7 +103,7 @@ fi
 # ── Smoke test from the installed tree ──────────────────────────────────────
 ( cd "$INSTALL_DIR" && "$PY" -c 'import yaml' ) || die "pyyaml check failed inside $INSTALL_DIR"
 "$INSTALL_DIR/bin/bb-run" list >/dev/null 2>&1 || die "bb-run list failed inside $INSTALL_DIR - run '$INSTALL_DIR/bin/bb-run list' to debug"
-say "==> Smoke test passed (46 skills discovered)"
+say "==> Smoke test passed (48 skills discovered)"
 
 # ── Symlink binaries onto PATH ──────────────────────────────────────────────
 LINK_DIR=""
@@ -138,7 +138,7 @@ cat <<EOF
 Quick start:
 
   bb-init example.com --program example --scope-file scope.txt
-  bb-run list                        # browse 46 skills
+  bb-run list                        # browse 48 skills
   bb-run recon list                  # browse one skill's workflows
   bb-hunt https://example.com --dry-run
 

@@ -115,7 +115,7 @@ def list_workflows(skill):
     out = []
     for name, wf in (data.get("workflows") or {}).items():
         wf = wf or {}
-        tier = wf.get("safety_tier") or skill_tier or "active-safe"
+        tier = wf.get("safety_tier") or skill_tier or "intrusive"
         out.append((name, tier))
     return out
 
@@ -294,6 +294,9 @@ class Campaign:
             self.log(f"  FAIL(exit {code}) {skill}/{workflow} — continuing")
 
     def tier_ok(self, tier):
+        # destructive-manual is never automated, regardless of ceiling.
+        if tier == "destructive-manual":
+            return False
         return TIERS.get(tier, 1) <= TIERS.get(self.max_tier, 1)
 
     # ---- phases ----
@@ -403,6 +406,29 @@ class Campaign:
             print("=" * 64)
         else:
             self.max_tier = requested
+
+        # Target must be explicitly authorized by the supplied scope file.
+        if scope_ok:
+            import subprocess as _sp
+            r = _sp.run([sys.executable,
+                         ".claude/skills/scope-manager/scripts/scope_manager.py",
+                         "validate", "--url", a.target, "--scope-file", a.scope_file],
+                        capture_output=True, text=True)
+            try:
+                verdict = json.loads(r.stdout)
+            except Exception:
+                verdict = {"allowed": False, "reason": "scope validation error"}
+            if not verdict.get("allowed"):
+                if self.dry:
+                    print(f"DRY-RUN WARNING: target '{a.target}' is not in the supplied scope "
+                          f"({verdict.get('reason')}); a real run would abort.")
+                else:
+                    print("=" * 64)
+                    print(f"AUTHORIZATION GATE: target '{a.target}' is not authorized.")
+                    print(f"  reason: {verdict.get('reason')}")
+                    print("  Refusing to start a campaign against an out-of-scope target.")
+                    print("=" * 64)
+                    sys.exit(4)
 
         self.setup_dir(a.target, resume_id=a.resume)
         self.log(f"campaign {self.campaign_id} | target={a.target} | ceiling={self.max_tier} "

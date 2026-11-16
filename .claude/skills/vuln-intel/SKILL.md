@@ -1,3 +1,8 @@
+---
+name: vuln-intel
+description: Automated vulnerability intelligence for bug bounty targets. Searches NVD, GitHub advisories, disclosed reports, PoCs, and security news. Maps findings to technique-kb entries for actionable test plans.
+---
+
 # Vulnerability Intelligence
 
 ## Overview

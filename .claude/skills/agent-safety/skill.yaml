@@ -1,6 +1,7 @@
 name: agent-safety
 version: 1.0.0
 description: Protect the AI-assisted toolkit from prompt injection in target-controlled content during scanning and triage.
+safety_tier: passive
 bounded_context: AgentSafetyContext
 owasp_wstg:
   - WSTG-INPV-14

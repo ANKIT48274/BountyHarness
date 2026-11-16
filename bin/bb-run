@@ -39,6 +39,17 @@ Examples:
 
 Workflows live in \$REPO_ROOT/.claude/skills/<skill>/skill.yaml.
 Context comes from \$REPO_ROOT/.bb/context.env (run bb-init first).
+
+Network isolation (non-passive workflows):
+  Runs in a rootless user+network namespace with no external interface,
+  nft default-deny (IPv4+IPv6), seccomp raw-socket deny, and a single
+  egress path to the scope-enforcing proxy over AF_UNIX. Missing
+  proxy/namespace/seccomp is a hard failure (exit 8) and the workflow
+  command is never evaluated. Inspect runs with: bb-netns status
+
+Exit codes: 0 ok, 2 circuit breaker, 3 missing scope, 4 out of scope,
+            5 approval required, 6 destructive refused, 7 unparseable scope,
+            8 isolation/proxy unavailable, 9 required tool missing.
 EOF
 }
 
@@ -105,7 +116,7 @@ if [ -f "$REPO_ROOT/.bb/context.env" ]; then
   # shellcheck source=/dev/null
   source "$REPO_ROOT/.bb/context.env"
   set +a
-  export PATH="$HOME/.pdtm/go/bin:$HOME/go/bin:$PATH"
+  export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$HOME/google-cloud-sdk/google-cloud-sdk/bin:$HOME/.nvm/versions/node/v22.23.2/bin:$HOME/.pdtm/go/bin:$HOME/go/bin:$PATH"
 else
   echo "Run bb-init first"
   exit 1
@@ -164,33 +175,59 @@ for f in glob.glob(os.environ["REPO_ROOT"] + "/tools/registry/*.yaml"):
     except Exception:
         pass
 try:
-    tokens = set(shlex.split(cmd))
+    # Normalise shell line continuations first: in a YAML block scalar the
+    # command is "mkdir ... && \\\nfrida ...", and shlex turns that into a
+    # token "\nfrida" which never matches the registry. That silently
+    # disabled the missing-tool guard for multi-line workflows.
+    normalized = cmd.replace("\\\n", " ").replace("\n", " ")
+    tokens = set(shlex.split(normalized))
 except Exception:
     tokens = set(re.findall(r"[A-Za-z0-9_.+-]+", cmd))
 command_words = set()
 for token in tokens:
-    base = os.path.basename(token)
+    base = os.path.basename(token.strip())
     if base in registry:
         command_words.add(base)
 try:
     with open(f"{sdir}/skill.yaml") as f:
         data = yaml.safe_load(f)
+    missing = []
     for t in data.get("tools_required", []):
         info = registry.get(t, {})
         binary = info.get("binary", t)
         if t in command_words or binary in command_words:
             if not shutil.which(binary):
-                print(f"WARNING: {t} not on PATH — run: bin/bb-tools doctor --skill {skill}")
+                missing.append(f"{t} (binary: {binary})")
+    if missing and os.environ.get("BB_ALLOW_MISSING_TOOLS") != "1":
+        print("ERROR: required tool(s) not on PATH: " + ", ".join(missing), file=sys.stderr)
+        print(f"  Fix: bin/bb-tools install <tool>  |  bin/bb-tools doctor --skill {skill}", file=sys.stderr)
+        print("  Set BB_ALLOW_MISSING_TOOLS=1 only when the workflow degrades gracefully.", file=sys.stderr)
+        sys.exit(9)
+except SystemExit:
+    raise
 except Exception:
     pass
 intrusive = {name for name, info in registry.items() if info.get("risk_tier") in ("intrusive", "destructive-manual")}
-if command_words & intrusive:
-    s = os.environ.get("SCOPE_FILE", "")
-    if not s or not os.path.isfile(s) or os.path.getsize(s) == 0:
-        print(f"WARNING: intrusive workflow {wf} without scope file — require scope before continuing")
 if command_words & {"nuclei", "ffuf", "dalfox", "katana"} and not os.environ.get("RATE_LIMIT"):
     print("HINT: Set RATE_LIMIT in .bb/context.env to avoid getting blocked")
 PY
+
+# Authorization gate: hard block before any command is evaluated.
+# passive runs freely; active-safe+ needs a valid scope file matching TARGET;
+# intrusive+ needs BB_APPROVED_TIER; destructive-manual never runs.
+python3 "$REPO_ROOT/tools/workflow_gate.py" \
+  --skill-dir "$SCRIPT_DIR" \
+  --workflow "$WORKFLOW" \
+  --command "$WF_CMD" \
+  --target "${TARGET:-}" \
+  --port "${TARGET_PORT:-0}" \
+  --scheme "${TARGET_SCHEME:-}" \
+  --scope-file "${SCOPE_FILE:-}"
+GATE_EXIT=$?
+if [ "$GATE_EXIT" -ne 0 ]; then
+  echo "AUTHORIZATION GATE: refusing to run ${SKILL}/${WORKFLOW} (exit $GATE_EXIT)" >&2
+  exit "$GATE_EXIT"
+fi
 
 # Substitute longest variable names first so $TARGET_URL is not partially
 # rewritten as ${TARGET}_URL. Values are shell-quoted to prevent injection
@@ -212,31 +249,18 @@ SCOPE_HASH=""
 if [ -n "${SCOPE_FILE:-}" ] && [ -f "$SCOPE_FILE" ]; then
   SCOPE_HASH=$(shasum -a 256 "$SCOPE_FILE" | cut -d' ' -f1)
 fi
-SAFETY_TIER=$(python3 - "$SCRIPT_DIR/skill.yaml" <<'PY'
-import glob, sys, yaml
-tools = []
-with open(sys.argv[1]) as f:
-    tools = yaml.safe_load(f).get('tools_required', [])
-registry = {}
-for rf in glob.glob(__import__('os').environ['REPO_ROOT'] + '/tools/registry/*.yaml'):
-    try:
-        for t in yaml.safe_load(open(rf)).get('registry',{}).get('tools',[]):
-            n = t.get('name')
-            if n: registry[n] = t.get('risk_tier','active-safe')
-            b = t.get('binary')
-            if b and b != n: registry[b] = t.get('risk_tier','active-safe')
-    except: pass
-order = {'passive':0,'active-safe':1,'intrusive':2,'destructive-manual':3}
-highest, hval = 'passive', 0
-for tool in tools:
-    tier = registry.get(tool, 'active-safe')
-    v = order.get(tier, 1)
-    if v > hval:
-        hval = v
-        highest = tier
-print(highest if registry else 'active-safe')
-PY
-)
+# Resolve the same tier the authorization gate uses (workflow metadata first,
+# then skill metadata, then tools). Keeping one resolver prevents bb-run from
+# treating an active-safe workflow as passive and skipping network isolation.
+SAFETY_TIER=$(python3 "$REPO_ROOT/tools/workflow_gate.py" \
+  --skill-dir "$SCRIPT_DIR" \
+  --workflow "$WORKFLOW" \
+  --command "$WF_CMD" \
+  --print-tier 2>/dev/null || echo "intrusive")
+case "$SAFETY_TIER" in
+  passive|active-safe|intrusive|destructive-manual) ;;
+  *) SAFETY_TIER="intrusive" ;;
+esac
 SKILL_TOOLS=$(python3 - "$SCRIPT_DIR/skill.yaml" <<'PY' 2>/dev/null
 import sys, yaml
 with open(sys.argv[1]) as f:
@@ -246,12 +270,151 @@ PY
 )
 SKILL_TOOLS="${SKILL_TOOLS:-}"
 
-echo "=== Running: ${SKILL}/${WORKFLOW} ==="
-echo "$WF_CMD"
-set +e
-eval "$WF_CMD"
-EXIT_CODE=$?
-set -e
+# ---------------------------------------------------------------------------
+# OS-level network isolation for non-passive workflows.
+#
+# Every non-passive workflow runs inside a rootless user+network namespace
+# (`unshare -Urn`) that has:
+#   * no external interface and no default route,
+#   * an nftables default-deny ruleset covering IPv4 and IPv6,
+#   * raw/packet socket creation denied by an inherited seccomp filter,
+#   * exactly one egress path: a 127.0.0.1 TCP bridge to the host scope proxy
+#     over an AF_UNIX socket.
+# The host proxy checks every destination against SCOPE_FILE and pins DNS.
+# Passive workflows are third-party OSINT only (no scope file required) and
+# stay on the host; this is documented in BOUNTY_READINESS_REPORT.md.
+#
+# There is deliberately no agent-settable switch to run a non-passive workflow
+# on the host network: a missing proxy, namespace, or seccomp filter is a hard
+# failure (exit 8) and the workflow command is never evaluated.
+# ---------------------------------------------------------------------------
+ISOLATION_STATE_DIR="${BB_NETNS_STATE_DIR:-${XDG_RUNTIME_DIR:-$HOME/.local/state/bountyharness}/netns}"
+RUN_TOKEN="run-$$-$(date +%s)"
+RUN_DIR="$ISOLATION_STATE_DIR/$RUN_TOKEN"
+PROXY_PID=""
+SUPERVISOR_PID=""
+ISOLATION_ACTIVE=0
+ISOLATION_FAILED=0
+
+cleanup_isolation() {
+  local rc=$?
+  if [ -n "$SUPERVISOR_PID" ]; then
+    kill "$SUPERVISOR_PID" 2>/dev/null || true
+    wait "$SUPERVISOR_PID" 2>/dev/null || true
+    SUPERVISOR_PID=""
+  fi
+  if [ -n "$PROXY_PID" ]; then
+    kill "$PROXY_PID" 2>/dev/null || true
+    wait "$PROXY_PID" 2>/dev/null || true
+    PROXY_PID=""
+  fi
+  rm -rf "$RUN_DIR"
+  return $rc
+}
+trap cleanup_isolation EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+if [ "$SAFETY_TIER" != "passive" ]; then
+  if ! command -v unshare >/dev/null 2>&1; then
+    echo "BLOCKED: network isolation unavailable (unshare not found)" >&2
+    ISOLATION_FAILED=1
+  fi
+  if [ "$(cat /proc/sys/kernel/unprivileged_userns_clone 2>/dev/null || echo 1)" != "1" ]; then
+    echo "BLOCKED: network isolation unavailable (unprivileged user namespaces disabled)" >&2
+    ISOLATION_FAILED=1
+  fi
+  if [ -z "${SCOPE_FILE:-}" ] || [ ! -f "$SCOPE_FILE" ]; then
+    echo "BLOCKED: network isolation requires a non-empty SCOPE_FILE" >&2
+    ISOLATION_FAILED=1
+  fi
+
+  if [ "$ISOLATION_FAILED" = "0" ]; then
+    if ! mkdir -p "$RUN_DIR" 2>/dev/null; then
+      echo "BLOCKED: cannot create isolation state directory $RUN_DIR (exit 8)" >&2
+      ISOLATION_FAILED=1
+    fi
+  fi
+
+  if [ "$ISOLATION_FAILED" = "0" ]; then
+    chmod 700 "$ISOLATION_STATE_DIR" "$RUN_DIR" 2>/dev/null || true
+    PROXY_SOCK="$RUN_DIR/p.sock"
+    PROXY_READY="$RUN_DIR/proxy.ready"
+    PROXY_LOG="$REPO_ROOT/.bb/scope-proxy.log"
+    mkdir -p "$REPO_ROOT/.bb"
+    PROXY_ARGS=(--scope-file "$SCOPE_FILE" --unix-socket "$PROXY_SOCK"
+                --ready-file "$PROXY_READY" --log "$PROXY_LOG" --parent-death)
+    if [ "${BB_SCOPE_ALLOW_PRIVATE:-0}" = "1" ]; then
+      PROXY_ARGS+=(--allow-private)
+    fi
+    python3 "$REPO_ROOT/tools/scope_proxy.py" "${PROXY_ARGS[@]}" >/dev/null 2>"$RUN_DIR/proxy.err" &
+    PROXY_PID=$!
+    for _ in $(seq 1 50); do
+      [ -s "$PROXY_READY" ] && break
+      kill -0 "$PROXY_PID" 2>/dev/null || break
+      sleep 0.1
+    done
+    if [ ! -s "$PROXY_READY" ] || ! kill -0 "$PROXY_PID" 2>/dev/null; then
+      echo "BLOCKED: scope proxy failed to start; refusing to run ${SKILL}/${WORKFLOW} (exit 8)" >&2
+      cat "$RUN_DIR/proxy.err" >&2 2>/dev/null || true
+      ISOLATION_FAILED=1
+    else
+      cat > "$RUN_DIR/meta.json" <<EOF
+{"proxy_pid": ${PROXY_PID}, "skill": "$SKILL", "workflow": "$WORKFLOW",
+ "safety_tier": "$SAFETY_TIER", "run_dir": "$RUN_DIR", "proxy_socket": "$PROXY_SOCK",
+ "started_at": "$STARTED_AT"}
+EOF
+      ISOLATION_ACTIVE=1
+      echo "NETWORK ISOLATION: rootless netns (nft default-deny IPv4/IPv6, seccomp raw-socket deny)"
+      echo "SCOPE PROXY: AF_UNIX ${PROXY_SOCK} (mode 0600; DNS pinned; redirects re-checked)"
+    fi
+  fi
+
+  if [ "$ISOLATION_FAILED" = "1" ]; then
+    # Fail closed: record the failure and exit 8 without evaluating WF_CMD.
+    EXIT_CODE=8
+  fi
+fi
+
+if [ "$ISOLATION_FAILED" = "1" ]; then
+  echo "=== BLOCKED: ${SKILL}/${WORKFLOW} not executed (isolation unavailable) ===" >&2
+else
+  echo "=== Running: ${SKILL}/${WORKFLOW} ==="
+  echo "$WF_CMD"
+  if [ "$ISOLATION_ACTIVE" = "1" ]; then
+    if [ "${BB_ISOLATION_TEST_FAIL:-0}" = "1" ]; then
+      # Fail-closed test hook: proves exit 8 without evaluating the workflow.
+      echo "BLOCKED: simulated isolation failure (BB_ISOLATION_TEST_FAIL=1)" >&2
+      EXIT_CODE=8
+    else
+      set +e
+      unshare -Urn python3 "$REPO_ROOT/tools/netns/supervisor.py" \
+        --proxy-socket "$PROXY_SOCK" \
+        --ready-file "$RUN_DIR/ns.ready" \
+        --state-file "$RUN_DIR/ns.state" \
+        --timeout "${BB_WORKFLOW_TIMEOUT:-0}" \
+        --cwd "$REPO_ROOT" \
+        -- bash -c "$WF_CMD" &
+      SUPERVISOR_PID=$!
+      wait "$SUPERVISOR_PID"
+      EXIT_CODE=$?
+      SUPERVISOR_PID=""
+      set -e
+      if [ ! -s "$RUN_DIR/ns.state" ]; then
+        echo "BLOCKED: network namespace did not start; workflow not executed (exit 8)" >&2
+        EXIT_CODE=8
+      elif [ "$EXIT_CODE" -eq 80 ]; then
+        echo "BLOCKED: network isolation could not be established; workflow not executed (exit 8)" >&2
+        EXIT_CODE=8
+      fi
+    fi
+  else
+    set +e
+    eval "$WF_CMD"
+    EXIT_CODE=$?
+    set -e
+  fi
+fi
 
 ENDED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 S_SECS=$(python3 -c "import datetime,sys; d=datetime.datetime.strptime(sys.argv[1],'%Y-%m-%dT%H:%M:%SZ'); print(int(d.timestamp()*1000))" "$STARTED_AT")

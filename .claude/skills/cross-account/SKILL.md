@@ -1,3 +1,8 @@
+---
+name: cross-account
+description: Automate IDOR/BOLA/BFLA/tenant isolation testing by replaying captured requests across multiple authenticated personas.
+---
+
 # Cross-Account Authorization Testing
 
 ## Overview

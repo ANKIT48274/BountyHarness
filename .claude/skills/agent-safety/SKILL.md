@@ -1,3 +1,8 @@
+---
+name: agent-safety
+description: Protect the AI-assisted toolkit from prompt injection in target-controlled content during scanning and triage.
+---
+
 # Agent Safety
 
 ## Overview

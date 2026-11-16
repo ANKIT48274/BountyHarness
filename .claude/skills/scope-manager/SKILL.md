@@ -1,3 +1,8 @@
+---
+name: scope-manager
+description: Structured scope definition, validation, versioning, and guardrails for bug bounty engagements. Prevents accidental out-of-scope testing and tracks scope changes over time.
+---
+
 # Scope Manager
 
 ## Overview

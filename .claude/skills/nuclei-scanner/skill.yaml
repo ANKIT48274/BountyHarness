@@ -1,6 +1,7 @@
 name: nuclei-scanner
 version: 2.0.0
 description: Nuclei template-based vulnerability scanning — severity profiles, category scans, authenticated scanning, DAST mode, custom templates
+safety_tier: intrusive
 bounded_context: ScanningContext
 owasp_wstg: []
 owasp_api_top10: []
@@ -19,6 +20,7 @@ input_files:
   - js_files.txt
 workflows:
   cve-priority:
+    safety_tier: passive
     description: Prioritize explicit CVE IDs using cvemap.
     inputs: [TARGET, OUTDIR]
     command: |
@@ -53,6 +55,7 @@ workflows:
       if_no_findings: validate-findings
 
   validate-findings:
+    safety_tier: passive
     description: Validate nuclei JSONL findings with curl-based verification.
     inputs: [OUTDIR, CONTEXT]
     command: |

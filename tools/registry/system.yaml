@@ -297,7 +297,7 @@ registry:
     - mobile
   - name: semgrep
     repo: semgrep.dev
-    install_method: brew
+    install_method: pipx
     binary: semgrep
     version_cmd: semgrep --version
     health_cmd: semgrep --version
@@ -313,7 +313,8 @@ registry:
     - osint
   - name: playwright
     repo: playwright.dev
-    install_method: pip
+    install_method: pipx
+    package: playwright
     binary: playwright
     version_cmd: playwright --version
     health_cmd: playwright --version
@@ -363,7 +364,8 @@ registry:
     - xss
   - name: frida
     repo: github.com/frida/frida
-    install_method: pip
+    install_method: pipx
+    package: frida-tools
     binary: frida
     version_cmd: frida --version
     health_cmd: frida --version
@@ -406,7 +408,8 @@ registry:
     - cloud
   - name: az
     repo: learn.microsoft.com/cli/azure
-    install_method: brew
+    install_method: pipx
+    package: azure-cli
     binary: az
     version_cmd: az --version
     health_cmd: az --version
@@ -421,7 +424,7 @@ registry:
     - cloud
   - name: gcloud
     repo: cloud.google.com/sdk
-    install_method: brew
+    install_method: manual
     binary: gcloud
     version_cmd: gcloud version
     health_cmd: gcloud version
@@ -436,7 +439,7 @@ registry:
     - cloud
   - name: kubectl
     repo: kubernetes.io/docs/reference/kubectl
-    install_method: brew
+    install_method: manual
     binary: kubectl
     version_cmd: kubectl version --client
     health_cmd: kubectl version --client
@@ -449,3 +452,18 @@ registry:
     - files
     skills:
     - privesc
+  - name: dig
+    repo: isc.org/bind9
+    install_method: system
+    binary: dig
+    version_cmd: dig -v
+    health_cmd: dig -v
+    capabilities:
+    - dns_lookup
+    - dns_enum
+    risk_tier: passive
+    output_support:
+    - stdout
+    skills:
+    - identity-domain
+    - recon

@@ -1,6 +1,7 @@
 name: xss
 version: 2.0.0
 description: Cross-Site Scripting detection — reflected, stored, DOM, blind, CSP bypass, mXSS, and WAF bypass
+safety_tier: intrusive
 bounded_context: InjectionContext
 owasp_wstg:
   - WSTG-CLNT-01
@@ -54,6 +55,7 @@ workflows:
       if_no_findings: dom
 
   dom:
+    safety_tier: passive
     description: Scan downloaded JavaScript for DOM XSS sources and sinks.
     inputs: [OUTDIR, CONTEXT]
     command: |
@@ -73,6 +75,7 @@ workflows:
       if_no_findings: csp-analysis
 
   csp-analysis:
+    safety_tier: active-safe
     description: Fetch and analyze the target page Content-Security-Policy.
     inputs: [TARGET_URL, OUTDIR, CONTEXT]
     command: |
@@ -92,6 +95,7 @@ workflows:
       if_no_findings: context-encoder
 
   context-encoder:
+    safety_tier: passive
     description: Generate encoded variants for an operator-supplied XSS payload.
     inputs: [XSS_PAYLOAD, OUTDIR, CONTEXT]
     command: |

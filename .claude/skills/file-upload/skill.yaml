@@ -1,6 +1,7 @@
 name: file-upload
 version: 2.0.0
 description: File upload vulnerabilities — extension bypass, content-type spoofing, magic byte bypass, path traversal, polyglot files, SVG injection
+safety_tier: intrusive
 bounded_context: UploadContext
 owasp_wstg:
   - WSTG-BUSL-08

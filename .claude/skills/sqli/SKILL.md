@@ -1,3 +1,8 @@
+---
+name: sqli
+description: SQL Injection detection and exploitation — error-based, UNION, Boolean blind, time-based, OOB, stacked queries, NoSQL
+---
+
 # Sqli
 
 ## Overview

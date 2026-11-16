@@ -1,6 +1,7 @@
 name: osint
 version: 2.0.0
 description: Open Source Intelligence — GitHub dorking, Google dorks, Shodan/Censys, email discovery, WHOIS history, certificate transparency, leaked credentials
+safety_tier: passive
 bounded_context: IntelligenceContext
 owasp_wstg:
   - WSTG-INFO-01

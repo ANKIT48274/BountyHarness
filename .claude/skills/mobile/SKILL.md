@@ -1,3 +1,8 @@
+---
+name: mobile
+description: Mobile application security — APK/IPA static analysis, Firebase misconfig, WebView vulnerabilities, certificate pinning bypass, deeplinks, Frida hooks
+---
+
 # Mobile
 
 ## Overview

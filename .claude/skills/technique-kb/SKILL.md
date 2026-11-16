@@ -1,3 +1,8 @@
+---
+name: technique-kb
+description: Structured knowledge base of attack techniques with preconditions, signals, evidence requirements, and standards mappings
+---
+
 # Technique Knowledge Base
 
 ## Overview

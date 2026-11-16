@@ -30,14 +30,14 @@ def get_tool_version(binary: str, vcmd: str) -> str:
     """Return version string for an installed tool, or 'unknown'."""
     if vcmd:
         try:
-            r = subprocess.run(vcmd, shell=True, capture_output=True, text=True, timeout=5)
+            r = subprocess.run(vcmd, shell=True, capture_output=True, text=True, timeout=15)
             combined = (r.stdout or "") + (r.stderr or "")
             return _version(combined)
         except Exception:
             pass
     for flag in ("--version", "-version", "-V", "version"):
         try:
-            r = subprocess.run([binary, flag], capture_output=True, text=True, timeout=5)
+            r = subprocess.run([binary, flag], capture_output=True, text=True, timeout=15)
             combined = (r.stdout or "") + (r.stderr or "")
             v = _version(combined)
             if v and v != "unknown":
@@ -81,8 +81,6 @@ def run():
         info = registry.get(name, {})
         binary = info.get("binary", name)
         method = info.get("install_method", "unknown")
-        if method == "pipx":
-            method = "pip"
         vcmd = info.get("version_cmd", "")
         installed = shutil.which(binary) is not None
         version = ""

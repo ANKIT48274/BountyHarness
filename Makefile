@@ -1,4 +1,4 @@
-.PHONY: init validate test lint clean audit secrets release-check doctor help
+.PHONY: init validate test lint clean audit secrets release-check doctor opencode-check help
 
 init:
 	@echo "Usage: bin/bb-init <target> [--program NAME] [--scope-file FILE]"
@@ -39,11 +39,16 @@ release-check: test validate secrets
 doctor:
 	bin/bb-tools doctor
 
+opencode-check:
+	python3 tools/opencode/sync_skills.py --check
+	python3 tools/opencode/validate_integration.py
+
 help:
 	@echo "make test           - parse + compile every skill"
 	@echo "make lint           - ruff (python) + shellcheck (bash) if installed"
 	@echo "make validate       - skill quality validator"
 	@echo "make audit          - workflow + security audits"
 	@echo "make secrets        - gitleaks scan"
+	@echo "make opencode-check - OpenCode skill/frontmatter/config/agent validation"
 	@echo "make release-check  - full release gate"
 	@echo "make doctor         - external tool health checks"

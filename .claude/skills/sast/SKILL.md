@@ -1,3 +1,8 @@
+---
+name: sast
+description: SAST integration with SARIF parsing (Semgrep, Trivy, etc.) — import and triage static findings
+---
+
 # SAST
 
 ## Overview

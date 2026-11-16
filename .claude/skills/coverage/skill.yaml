@@ -1,6 +1,7 @@
 name: coverage
 version: 1.0.0
 description: Coverage ledger — tracks what the toolkit covers and what is missing across WSTG, ASVS, API Top 10, and Bugcrowd VRT standards
+safety_tier: passive
 bounded_context: CoverageContext
 owasp_wstg: []
 owasp_api_top10: []

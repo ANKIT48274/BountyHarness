@@ -1,6 +1,7 @@
 name: persona
 version: 1.0.0
 description: Manage authenticated testing personas with secure credential storage, session validation, and per-persona header export for replay-based security testing.
+safety_tier: passive
 bounded_context: PersonaContext
 owasp_wstg:
   - WSTG-ATHN-01
@@ -49,6 +50,7 @@ workflows:
       if_no_findings: validate-sessions
 
   validate-sessions:
+    safety_tier: active-safe
     description: Request a known URL as each persona and classify auth state.
     inputs: [OUTDIR]
     command: |

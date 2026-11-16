@@ -1,3 +1,8 @@
+---
+name: modern-browser
+description: Modern browser security testing — WebGPU, WASM, XS-Leaks, COOP/COEP/CORP, browser fingerprinting
+---
+
 # Modern Browser
 
 ## Overview

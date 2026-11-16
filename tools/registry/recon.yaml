@@ -310,7 +310,8 @@ registry:
 
     - name: x8
       repo: github.com/sh1yo/x8
-      install_method: manual
+      install_method: cargo
+      package: x8
       binary: x8
       version_cmd: "x8 --version"
       health_cmd: "x8 --version"

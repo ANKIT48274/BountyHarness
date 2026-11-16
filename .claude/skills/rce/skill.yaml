@@ -1,6 +1,7 @@
 name: rce
 version: 2.0.0
 description: Remote Code Execution — command injection, SSTI, insecure deserialization, LFI to RCE, eval injection, expression language injection
+safety_tier: intrusive
 bounded_context: ExecutionContext
 owasp_wstg:
   - WSTG-INPV-12

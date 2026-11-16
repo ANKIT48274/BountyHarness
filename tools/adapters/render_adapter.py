@@ -38,6 +38,29 @@ MANIFEST_PATH = ADAPTERS_DIR / "manifest.yaml"
 TEMPLATES_DIR = ADAPTERS_DIR / "templates"
 STATE_PATH = ADAPTERS_DIR / "state.yaml"
 
+
+def resolve_canonical_md() -> Path:
+    """Return the file that actually contains the canonical agent guide.
+
+    Some harness revisions keep the full guide in ``AGENTS.md`` and leave
+    ``CLAUDE.md`` as an ``@AGENTS.md`` import stub for Claude Code. Rendering
+    sections from that stub would produce an empty catalog, so follow the
+    import when detected.
+    """
+    if not CANONICAL_MD.exists():
+        return CANONICAL_MD
+    text = CANONICAL_MD.read_text(encoding="utf-8")
+    stripped = "\n".join(
+        line for line in text.splitlines()
+        if line.strip() and not line.strip().startswith("<!--")
+    ).strip()
+    if stripped == "@AGENTS.md" or stripped.startswith("@AGENTS.md"):
+        agents_md = REPO_ROOT / "AGENTS.md"
+        if agents_md.exists():
+            return agents_md
+    return CANONICAL_MD
+
+
 OWNER_MARKER_START = "<!-- BB-ADAPTER-GENERATED [{}] -->"
 OWNER_MARKER_END = "<!-- /BB-ADAPTER-GENERATED [{}] -->"
 MARKER_START_RE = re.compile(r"<!-- BB-ADAPTER-GENERATED \[(.+?)\] -->")
@@ -87,7 +110,8 @@ def compute_hash(content: str) -> str:
 
 
 def parse_claude_md_sections() -> Dict[str, str]:
-    with open(CANONICAL_MD) as f:
+    canonical_md = resolve_canonical_md()
+    with open(canonical_md) as f:
         content = f.read()
     lines = content.splitlines(keepends=True)
 
@@ -428,6 +452,15 @@ def cmd_preview(args):
 
 
 def cmd_apply(args):
+    if args.target == "opencode":
+        die(
+            "The OpenCode target is managed natively and is not rendered by this adapter.\n"
+            "Use the committed opencode.json, .opencode/agents/, .opencode/commands/, and\n"
+            "AGENTS.md. Regenerating AGENTS.md here would drop the OpenCode-specific rules.\n"
+            "See docs/adapters.md and OPENCODE_SETUP.md.",
+            code=2,
+        )
+
     manifest = load_manifest()
     if args.target not in manifest["targets"]:
         die(f"Unknown target: '{args.target}'. Use list-targets to see available targets.")

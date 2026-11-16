@@ -68,7 +68,7 @@ workflows:
         --output $OUTDIR/binary-analysis/mcp_tools.json
     outputs:
       - $OUTDIR/binary-analysis/mcp_tools.json
-    evidence_dir: null
+    evidence_dir: $OUTDIR/binary-analysis/evidence/
     safety_tier: passive
     detection_signals:
       - "MCP server reachable with valid bearer token"

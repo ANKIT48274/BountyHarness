@@ -97,16 +97,18 @@ def classify_impact(candidates_path, output_path, register_artifacts=False, run_
     for c in candidates:
         desc = (c.get("description","") + " " + c.get("category","")).lower()
         detected = False
+        # Word-boundary matching: a plain substring test makes "resource" match
+        # "rce" and "author" match "auth", silently mis-classifying findings.
         for ic in IMPACT_CLASSES:
-            if ic.replace("_"," ") in desc:
+            if re.search(r"\b" + re.escape(ic.replace("_", " ")) + r"\b", desc):
                 c["impact_class"] = ic
                 detected = True
                 break
         if not detected:
-            if "xss" in desc: c["impact_class"] = "stored_xss"
-            elif "ssrf" in desc: c["impact_class"] = "blind_ssrf"
-            elif "rce" in desc or "injection" in desc: c["impact_class"] = "rce"
-            elif "auth" in desc or "privilege" in desc: c["impact_class"] = "privilege_escalation"
+            if re.search(r"\bxss\b", desc): c["impact_class"] = "stored_xss"
+            elif re.search(r"\bssrf\b", desc): c["impact_class"] = "blind_ssrf"
+            elif re.search(r"\brce\b|\binjection\b", desc): c["impact_class"] = "rce"
+            elif re.search(r"\bauth\b|\bprivilege\b", desc): c["impact_class"] = "privilege_escalation"
             else: c["impact_class"] = "data_exposure"
     Path(output_path).write_text("\n".join(json.dumps(c) for c in candidates))
     if register_artifacts:
@@ -129,9 +131,16 @@ def verify_impact(candidates_path, impact_class, output_path, rejected_path, reg
             c["verification"] = "confirmed"
             c["verified_at"] = datetime.now(timezone.utc).isoformat()
             verified.append(c)
-        elif c.get("impact_class") != impact_class and impact_class == candidates[0].get("impact_class"):
-            pass
-        elif c not in verified:
+        else:
+            # Every candidate must land in exactly one bucket. The previous
+            # logic dropped non-matching candidates whenever the requested
+            # class happened to match the first candidate, so findings
+            # disappeared instead of being rejected.
+            c["verification"] = "rejected"
+            c["rejection_reason"] = (
+                f"impact class '{c.get('impact_class')}' does not match "
+                f"requested '{impact_class}'"
+            )
             rejected.append(c)
     if verified:
         Path(output_path).write_text("\n".join(json.dumps(v) for v in verified))

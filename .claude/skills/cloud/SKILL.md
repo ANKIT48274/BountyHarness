@@ -1,3 +1,8 @@
+---
+name: cloud
+description: Multi-cloud security testing — S3/GCP/Azure storage buckets, IAM enumeration, Lambda/Cloud Functions, metadata attacks, container registry, K8s clusters
+---
+
 # Cloud
 
 ## Overview

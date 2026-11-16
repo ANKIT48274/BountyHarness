@@ -1,3 +1,8 @@
+---
+name: standard-catalog
+description: Canonical standards reference for bug bounty toolkit maps every test to external standards
+---
+
 # Standard Catalog
 
 ## Overview

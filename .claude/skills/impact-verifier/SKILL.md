@@ -1,3 +1,8 @@
+---
+name: impact-verifier
+description: Convert candidate findings into confirmed bounty-grade reports only when impact is proven.
+---
+
 # Impact Verifier
 
 ## Overview

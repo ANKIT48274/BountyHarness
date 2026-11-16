@@ -1,3 +1,8 @@
+---
+name: skill-scientist
+description: AI Scientist pattern adapted for bug bounty skill improvement — automated hypothesize, design, run, review, and promote pipeline
+---
+
 # Skill Scientist
 
 ## Overview

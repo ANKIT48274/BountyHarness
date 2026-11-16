@@ -1,3 +1,8 @@
+---
+name: recon
+description: Full-stack reconnaissance for bug bounty targets — subdomains, DNS, ports, tech, crawling, URLs, JS, and asset inventory
+---
+
 # Recon
 
 ## Overview

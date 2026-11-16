@@ -1,3 +1,8 @@
+---
+name: business-logic
+description: Model application workflows as state machines and test for invalid transitions, race windows, and invariant breaks.
+---
+
 # Business Logic Testing
 
 ## Overview

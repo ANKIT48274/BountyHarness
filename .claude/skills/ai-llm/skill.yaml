@@ -1,6 +1,7 @@
 name: ai-llm
 version: 1.0.0
 description: AI/LLM Security Testing — prompt injection, tool abuse, output handling, RAG poisoning, MCP server attacks, training data extraction
+safety_tier: intrusive
 bounded_context: LLMContext
 owasp_wstg:
   - WSTG-INPV-14
@@ -35,6 +36,7 @@ input_files:
   - mcp_endpoints.txt
 workflows:
   surface-discovery:
+    safety_tier: active-safe
     description: Discover LLM endpoints, MCP servers, and chatbot surfaces
     inputs: [OUTDIR, CONTEXT]
     command: |

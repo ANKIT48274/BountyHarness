@@ -1,3 +1,8 @@
+---
+name: xss
+description: Cross-Site Scripting detection — reflected, stored, DOM, blind, CSP bypass, mXSS, and WAF bypass
+---
+
 # Xss
 
 ## Overview

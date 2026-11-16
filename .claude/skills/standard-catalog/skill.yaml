@@ -1,6 +1,7 @@
 name: standard-catalog
 version: 1.0.0
 description: Canonical standards reference for bug bounty toolkit maps every test to external standards
+safety_tier: passive
 bounded_context: StandardCatalogContext
 owasp_wstg:
   - WSTG-INFO-01

@@ -1,3 +1,8 @@
+---
+name: nuclei-scanner
+description: Nuclei template-based vulnerability scanning — severity profiles, category scans, authenticated scanning, DAST mode, custom templates
+---
+
 # Nuclei Scanner
 
 ## Overview

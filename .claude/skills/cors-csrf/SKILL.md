@@ -1,3 +1,8 @@
+---
+name: cors-csrf
+description: CORS misconfiguration and CSRF testing — origin reflection, cross-origin attacks, SameSite bypass, postMessage validation
+---
+
 # Cors Csrf
 
 ## Overview

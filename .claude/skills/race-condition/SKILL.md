@@ -1,3 +1,8 @@
+---
+name: race-condition
+description: Race condition detection — coupon/voucher bypass, TOCTOU, multi-step race, rate limit race, database race conditions
+---
+
 # Race Condition
 
 ## Overview

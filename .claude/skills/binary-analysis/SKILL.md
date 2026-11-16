@@ -1,3 +1,8 @@
+---
+name: binary-analysis
+description: Desktop/native binary triage and dynamic analysis for bounty targets that ship executables. Static PE analysis (stdlib-only) plus MCP-driven x64dbg sessions (breakpoints, memory, registers, modules) for deeplink handlers, update mechanisms, license checks, and packed downloadables. Local-only toward targets.
+---
+
 # Binary Analysis
 
 ## Overview
@@ -44,6 +49,17 @@ skill never interacts with remote target infrastructure.
 - Dynamic: mcp_call.json snapshots timestamped against your manual interaction
   steps; never include license keys or user data found in memory beyond what
   proves the finding
+- Tokens and bearer credentials read by the MCP client are local-only: redact
+  them from evidence, keep the token file out of Git, and sanitize any captured
+  memory dump before sharing.
+
+## Available Workflows
+| Workflow | Purpose | Script | Evidence |
+| --- | --- | --- | --- |
+| `pe-triage` | Static PE first pass: arch, sections, entropy, packer heuristics, watchlist imports | `scripts/pe_triage.py` | `$OUTDIR/binary-analysis/evidence/` |
+| `pe-triage-batch` | Batch static triage across a directory of downloaded binaries | `scripts/pe_triage.py` | `$OUTDIR/binary-analysis/evidence/` |
+| `mcp-tools` | Enumerate tools exposed by a running x64dbg-mcp-server session | `scripts/mcp_client.py` | `$OUTDIR/binary-analysis/evidence/` |
+| `mcp-call` | Invoke one debugger capability by intent (registers, modules, memory-read…) | `scripts/mcp_client.py` | `$OUTDIR/binary-analysis/evidence/` |
 
 ## References
 - https://x64dbg.com

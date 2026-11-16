@@ -1,3 +1,8 @@
+---
+name: ssrf
+description: Server-Side Request Forgery — internal probing, cloud metadata attacks, URL parser bypasses, protocol smuggling
+---
+
 # Ssrf
 
 ## Overview

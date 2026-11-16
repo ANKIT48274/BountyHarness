@@ -1,3 +1,8 @@
+---
+name: planner
+description: Domain-driven ranked test plan generator — consumes domain model, technique catalog, coverage ledger, and outputs a prioritized list of workflows with rationales, safety flags, and evidence requirements
+---
+
 # Planner
 
 ## Overview

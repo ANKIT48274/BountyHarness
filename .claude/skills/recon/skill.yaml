@@ -1,6 +1,7 @@
 name: recon
 version: 2.0.0
 description: Full-stack reconnaissance for bug bounty targets — subdomains, DNS, ports, tech, crawling, URLs, JS, and asset inventory
+safety_tier: passive
 bounded_context: ReconnaissanceContext
 owasp_wstg:
   - WSTG-INFO-01
@@ -80,6 +81,7 @@ workflows:
       if_no_findings: live-discovery
 
   live-discovery:
+    safety_tier: active-safe
     description: Probe enumerated subdomains for live HTTP services.
     inputs: [OUTDIR]
     command: |
@@ -101,6 +103,7 @@ workflows:
       if_no_findings: js-recon
 
   js-recon:
+    safety_tier: active-safe
     description: Extract JavaScript URLs, download bundles, and scan for endpoints or secrets.
     inputs: [OUTDIR]
     command: |
@@ -137,6 +140,7 @@ workflows:
       if_no_findings: url-discovery
 
   port-scan:
+    safety_tier: active-safe
     description: Fast port scanning for live hosts using naabu
     inputs: [OUTDIR]
     command: |
@@ -167,6 +171,7 @@ workflows:
       if_no_findings: js-recon
 
   tls-profile:
+    safety_tier: active-safe
     description: TLS/SSL profiling for live hosts using tlsx
     inputs: [OUTDIR]
     command: |

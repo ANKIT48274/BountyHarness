@@ -1,3 +1,8 @@
+---
+name: file-upload
+description: File upload vulnerabilities — extension bypass, content-type spoofing, magic byte bypass, path traversal, polyglot files, SVG injection
+---
+
 # File Upload
 
 ## Overview

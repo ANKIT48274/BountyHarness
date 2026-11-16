@@ -1,6 +1,7 @@
 name: cloud
 version: 2.0.0
 description: Multi-cloud security testing — S3/GCP/Azure storage buckets, IAM enumeration, Lambda/Cloud Functions, metadata attacks, container registry, K8s clusters
+safety_tier: intrusive
 bounded_context: CloudContext
 owasp_wstg: []
 owasp_api_top10: []
@@ -24,6 +25,7 @@ input_files:
   - live_urls.txt
 workflows:
   cloud-assets:
+    safety_tier: active-safe
     description: Enumerate cloud assets for the target using cloudlist
     inputs: [TARGET, OUTDIR]
     command: |

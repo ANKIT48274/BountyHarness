@@ -9,6 +9,42 @@ import os
 from datetime import datetime, timezone
 
 
+def isolation_proxy():
+    """Playwright proxy settings when running inside bb-run's isolated netns.
+
+    Returns None on the host so normal browser use is unchanged. Inside the
+    namespace Chromium must send every request through the scope-enforcing
+    bridge; "<-loopback>" disables Chromium's implicit loopback bypass.
+    """
+    if os.environ.get("BB_ISOLATED") != "1":
+        return None
+    server = os.environ.get("HTTPS_PROXY") or os.environ.get("HTTP_PROXY")
+    if not server:
+        return None
+    return {"server": server, "bypass": "<-loopback>"}
+
+
+def prefer_complete_playwright():
+    """Prefer a Playwright install that ships the Node driver (pipx/venv).
+
+    Some distro packages expose the Python module without the bundled driver,
+    which fails at sync_playwright() time. This only changes sys.path order; it
+    never installs anything.
+    """
+    import glob
+
+    override = os.environ.get("BB_PLAYWRIGHT_SITE")
+    if override and os.path.isdir(override):
+        sys.path.insert(0, override)
+        return
+    for base in (os.path.expanduser("~/.local/share/pipx/venvs"),
+                 os.path.expanduser("~/.local/pipx/venvs")):
+        for cand in glob.glob(os.path.join(base, "playwright", "lib", "python*", "site-packages")):
+            if os.path.isdir(os.path.join(cand, "playwright", "driver")):
+                sys.path.insert(0, cand)
+                return
+
+
 def build_parser():
     p = argparse.ArgumentParser(description="Probe WebGPU fingerprinting surface on a target URL")
     p.add_argument("--url", required=True, help="Target URL to probe")
@@ -173,6 +209,7 @@ def run_probe(url, timeout, headless, context_label, dry_run):
         return finding
 
     try:
+        prefer_complete_playwright()
         from playwright.sync_api import sync_playwright
     except ImportError:
         finding["errors"].append("playwright not installed — pip install playwright && playwright install chromium")
@@ -182,7 +219,7 @@ def run_probe(url, timeout, headless, context_label, dry_run):
 
     try:
         with sync_playwright() as pw:
-            browser = pw.chromium.launch(headless=headless)
+            browser = pw.chromium.launch(headless=headless, proxy=isolation_proxy())
             page = browser.new_page()
             page.goto(url, timeout=timeout, wait_until="domcontentloaded")
             time.sleep(1)

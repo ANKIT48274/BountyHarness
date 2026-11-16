@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Run the scope-enforcing, DNS-pinned forward proxy in the foreground.
+# Usage: bb-scope-proxy --scope-file <file> [--port 8899] [--allow-private]
+set -euo pipefail
+_resolve() { local s="${BASH_SOURCE[0]}" d; while [ -L "$s" ]; do d="$(cd -P "$(dirname "$s")" && pwd)"; s="$(readlink "$s")"; case "$s" in /*) ;; *) s="$d/$s" ;; esac; done; cd -P "$(dirname "$s")/.." >/dev/null && pwd; }
+REPO_ROOT="$(_resolve)"
+exec python3 "$REPO_ROOT/tools/scope_proxy.py" "$@"

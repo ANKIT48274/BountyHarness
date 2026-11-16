@@ -23,12 +23,40 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+def prefer_complete_playwright():
+    """Prefer a Playwright install that ships the Node driver (pipx/venv)."""
+    import glob
+
+    override = os.environ.get("BB_PLAYWRIGHT_SITE")
+    if override and os.path.isdir(override):
+        sys.path.insert(0, override)
+        return
+    for base in (os.path.expanduser("~/.local/share/pipx/venvs"),
+                 os.path.expanduser("~/.local/pipx/venvs")):
+        for cand in glob.glob(os.path.join(base, "playwright", "lib", "python*", "site-packages")):
+            if os.path.isdir(os.path.join(cand, "playwright", "driver")):
+                sys.path.insert(0, cand)
+                return
+
+
+prefer_complete_playwright()
+
 try:
     from playwright.sync_api import sync_playwright
 
     HAS_PLAYWRIGHT = True
 except ImportError:
     HAS_PLAYWRIGHT = False
+
+
+def isolation_proxy():
+    """Playwright proxy settings when running inside bb-run's isolated netns."""
+    if os.environ.get("BB_ISOLATED") != "1":
+        return None
+    server = os.environ.get("HTTPS_PROXY") or os.environ.get("HTTP_PROXY")
+    if not server:
+        return None
+    return {"server": server, "bypass": "<-loopback>"}
 
 FORBIDDEN_PATH_PATTERNS = [
     re.compile(p, re.I)
@@ -383,7 +411,7 @@ def capture_page(
             har_path = str(out / "traffic.har")
             context_kwargs["record_har_path"] = har_path
 
-        browser = pw.chromium.launch(headless=True)
+        browser = pw.chromium.launch(headless=True, proxy=isolation_proxy())
         context = browser.new_context(**context_kwargs)
 
         if cookies_payload:

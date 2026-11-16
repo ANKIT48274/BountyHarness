@@ -193,6 +193,12 @@ def _is_output_safe(output_path):
 
 def _check_has_secret_handling(command, skill_md_content):
     command_lower = command.lower() if command else ""
+    # OpenCode compatibility frontmatter is metadata, not safety guidance.
+    # Ignore it so adding frontmatter cannot change validator scores.
+    if skill_md_content and skill_md_content.startswith("---"):
+        end = skill_md_content.find("\n---", 3)
+        if end != -1:
+            skill_md_content = skill_md_content[end + 4:]
     md_lower = skill_md_content.lower() if skill_md_content else ""
     indicators = ["auth", "cookie", "session", "har", "bearer", "token"]
     redaction = ["redact", "sanitize", "local-only", "never committed", "gitignore", ".env"]

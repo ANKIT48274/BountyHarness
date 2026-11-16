@@ -1,6 +1,7 @@
 name: modern-browser
 version: 1.0.0
 description: Modern browser security testing — WebGPU, WASM, XS-Leaks, COOP/COEP/CORP, browser fingerprinting
+safety_tier: active-safe
 bounded_context: BrowserContext
 owasp_wstg:
   - WSTG-CLNT-01
@@ -39,6 +40,7 @@ workflows:
       if_no_findings: cross-origin-isolation
 
   wasm-audit:
+    safety_tier: passive
     description: Audit WebAssembly modules for exposed capabilities
     inputs: [OUTDIR, CONTEXT]
     command: |
@@ -109,6 +111,7 @@ workflows:
       if_no_findings: evidence
 
   evidence:
+    safety_tier: passive
     description: Collect evidence for modern browser findings
     inputs: [OUTDIR, EVIDENCE_DIR]
     command: |

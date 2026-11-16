@@ -5,8 +5,12 @@ registry:
     - name: garak
       repo: github.com/leondz/garak
       install_method: pipx
+      # garak requires torch>=2.13.0. This host already has a CUDA torch build
+      # in the user site-packages but no NVIDIA GPU, so reuse it instead of
+      # re-downloading several GB of nvidia wheels into the pipx venv.
+      pipx_args: "--system-site-packages"
       binary: garak
-      version_cmd: "garak --version"
+      version_cmd: "garak --version 2>&1 | sed -E 's/ at [0-9T:.Z-]+$//'"
       health_cmd: "garak --help"
       capabilities:
         - llm_vuln_scan
@@ -26,7 +30,8 @@ registry:
 
     - name: promptfoo
       repo: github.com/promptfoo/promptfoo
-      install_method: pipx
+      install_method: npm
+      package: promptfoo
       binary: promptfoo
       version_cmd: "promptfoo --version"
       health_cmd: "promptfoo --version"
@@ -49,6 +54,7 @@ registry:
     - name: PyRIT
       repo: github.com/Azure/PyRIT
       install_method: pipx
+      package: pyrit
       binary: pyrit
       version_cmd: "pyrit --version"
       health_cmd: "pyrit --help"
@@ -70,6 +76,7 @@ registry:
     - name: Inspect
       repo: github.com/UKGovernmentBEIS/inspect_ai
       install_method: pipx
+      package: inspect-ai
       binary: inspect
       version_cmd: "inspect --version"
       health_cmd: "inspect --version"

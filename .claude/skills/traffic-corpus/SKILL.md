@@ -1,3 +1,8 @@
+---
+name: traffic-corpus
+description: Import real application traffic and normalize into a deduplicated, route-aware, object-aware corpus for replay-based security testing.
+---
+
 # Traffic Corpus
 
 ## Overview

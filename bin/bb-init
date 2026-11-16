@@ -143,7 +143,7 @@ mkdir -p "$BB_DIR"
   printf 'TIMEOUT=%q\n' "30"
   printf 'RETRIES=%q\n' "2"
   printf 'RUN_ID=%q\n' "$TS"
-  printf 'TOOLS_PATH=%q\n' "/opt/homebrew/bin:${HOME}/.pdtm/go/bin:${HOME}/go/bin:${HOME}/Library/Python/3.14/bin:${PATH}"
+  printf 'TOOLS_PATH=%q\n' "${HOME}/.local/bin:${HOME}/.cargo/bin:${HOME}/google-cloud-sdk/google-cloud-sdk/bin:${HOME}/.nvm/versions/node/v22.23.2/bin:/opt/homebrew/bin:${HOME}/.pdtm/go/bin:${HOME}/go/bin:${HOME}/Library/Python/3.14/bin:${PATH}"
   # Emitting literal $TOOLS_PATH for the generated env file is intentional
   # shellcheck disable=SC2016
   printf 'export PATH="$TOOLS_PATH"\n'

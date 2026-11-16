@@ -1,3 +1,8 @@
+---
+name: http-protocol
+description: HTTP protocol-layer attacks — request smuggling (HTTP/1+2), cache poisoning, cache deception, URL parser differentials, email parser bypasses, TLS 0-RTT replay
+---
+
 # Http Protocol
 
 ## Overview

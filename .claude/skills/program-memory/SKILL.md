@@ -1,3 +1,8 @@
+---
+name: program-memory
+description: Governed program memory with corrections, confidence, decay, and strict program isolation. Persist target-specific knowledge across engagements and feed learning back into planner rankings.
+---
+
 # Program Memory
 
 ## Overview

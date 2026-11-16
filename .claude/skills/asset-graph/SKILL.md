@@ -1,3 +1,8 @@
+---
+name: asset-graph
+description: Persistent target asset graph connecting recon, traffic, objects, personas, and findings across runs.
+---
+
 # Asset Graph
 
 ## Overview

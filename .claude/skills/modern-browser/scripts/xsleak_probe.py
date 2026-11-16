@@ -11,6 +11,32 @@ import tempfile
 from datetime import datetime, timezone
 
 
+def isolation_proxy():
+    """Playwright proxy settings when running inside bb-run's isolated netns."""
+    if os.environ.get("BB_ISOLATED") != "1":
+        return None
+    server = os.environ.get("HTTPS_PROXY") or os.environ.get("HTTP_PROXY")
+    if not server:
+        return None
+    return {"server": server, "bypass": "<-loopback>"}
+
+
+def prefer_complete_playwright():
+    """Prefer a Playwright install that ships the Node driver (pipx/venv)."""
+    import glob
+
+    override = os.environ.get("BB_PLAYWRIGHT_SITE")
+    if override and os.path.isdir(override):
+        sys.path.insert(0, override)
+        return
+    for base in (os.path.expanduser("~/.local/share/pipx/venvs"),
+                 os.path.expanduser("~/.local/pipx/venvs")):
+        for cand in glob.glob(os.path.join(base, "playwright", "lib", "python*", "site-packages")):
+            if os.path.isdir(os.path.join(cand, "playwright", "driver")):
+                sys.path.insert(0, cand)
+                return
+
+
 def build_parser():
     p = argparse.ArgumentParser(description="Detect cross-site leaks via timing differentials")
     p.add_argument("--url", required=True, help="Target URL to probe")
@@ -248,6 +274,7 @@ def run_probe(url, trials, threshold, timeout, headless, context_label, dry_run)
         return finding
 
     try:
+        prefer_complete_playwright()
         from playwright.sync_api import sync_playwright
     except ImportError:
         finding["errors"].append("playwright not installed")
@@ -258,7 +285,7 @@ def run_probe(url, trials, threshold, timeout, headless, context_label, dry_run)
     tmpfile = None
     try:
         with sync_playwright() as pw:
-            browser = pw.chromium.launch(headless=headless)
+            browser = pw.chromium.launch(headless=headless, proxy=isolation_proxy())
             ctx = browser.new_context()
 
             tmpfile = tempfile.NamedTemporaryFile(suffix=".html", mode="w", delete=False, prefix="xsleak_")

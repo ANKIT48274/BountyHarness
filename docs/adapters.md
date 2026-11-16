@@ -2,7 +2,7 @@
 
 ## Why adapters exist
 
-The BB Toolkit has a single canonical configuration in `CLAUDE.md` and `.claude/skills/`. Adapters make the same skill catalog, dispatch rules, and safety rules available to other agent environments (OpenCode, Codex, Cursor, etc.) without duplicating logic.
+The BB Toolkit has a single canonical configuration in `AGENTS.md`, `CLAUDE.md`, and `.claude/skills/`. Adapters make the same skill catalog, dispatch rules, and safety rules available to other agent environments (OpenCode, Codex, Cursor, etc.) without duplicating logic.
 
 When you add a new skill or update a dispatch rule, run the adapter and all agent platforms get the update.
 
@@ -64,8 +64,10 @@ Uninstall preserves user-written content by only removing adapter-generated sect
 
 ### OpenCode
 - Target: `opencode`
-- Output: `AGENTS.md` (in repo root)
-- Full file is adapter-generated
+- Output: `AGENTS.md` in the repo root is the canonical guide and is committed directly.
+- Native integration: `opencode.json`, `.opencode/agents/`, `.opencode/commands/`, and automatic discovery of `.claude/skills/`.
+- `apply --target opencode` is intentionally refused: regenerating `AGENTS.md` would remove the OpenCode-specific orchestration and safety sections. Use `preview` only for reference.
+- See `OPENCODE_SETUP.md` and `OPENCODE_USAGE.md` for the supported workflow.
 
 ### Codex
 - Target: `codex`

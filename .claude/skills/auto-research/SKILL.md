@@ -1,3 +1,8 @@
+---
+name: auto-research
+description: Imports and normalizes public security knowledge into the technique knowledge base
+---
+
 # Auto Research
 
 ## Overview

@@ -29,7 +29,7 @@ if [ "${1:-}" = "-v" ] || [ "${1:-}" = "--version" ]; then
 fi
 
 cd "$REPO_ROOT"
-export PATH="/opt/homebrew/bin:$HOME/.pdtm/go/bin:$HOME/go/bin:$HOME/Library/Python/3.14/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$HOME/google-cloud-sdk/google-cloud-sdk/bin:$HOME/.nvm/versions/node/v22.23.2/bin:/opt/homebrew/bin:$HOME/.pdtm/go/bin:$HOME/go/bin:$HOME/Library/Python/3.14/bin:$PATH"
 
 RUNNER="$REPO_ROOT/.claude/skills/campaign/scripts/campaign_runner.py"
 

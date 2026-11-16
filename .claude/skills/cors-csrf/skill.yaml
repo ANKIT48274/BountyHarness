@@ -1,6 +1,7 @@
 name: cors-csrf
 version: 2.0.0
 description: CORS misconfiguration and CSRF testing — origin reflection, cross-origin attacks, SameSite bypass, postMessage validation
+safety_tier: intrusive
 bounded_context: WebSecurityContext
 owasp_wstg:
   - WSTG-CLNT-07
@@ -17,6 +18,7 @@ input_files:
   - all_urls.txt
 workflows:
   cors-matrix:
+    safety_tier: active-safe
     description: Test CORS origin reflection, credentialed CORS, and null-origin cases.
     inputs: [TARGET_URL, OUTDIR, CONTEXT]
     command: |
@@ -36,6 +38,7 @@ workflows:
       if_no_findings: csrf-poc
 
   csrf-poc:
+    safety_tier: active-safe
     description: Generate a CSRF proof-of-concept for a known state-changing endpoint.
     inputs: [TARGET_URL, OUTDIR, CONTEXT]
     command: |

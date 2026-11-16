@@ -1,6 +1,7 @@
 name: skill-scientist
 version: 1.0.0
 description: AI Scientist pattern adapted for bug bounty skill improvement — automated hypothesize, design, run, review, and promote pipeline
+safety_tier: passive
 bounded_context: SkillImprovementContext
 owasp_wstg: []
 owasp_api_top10: []

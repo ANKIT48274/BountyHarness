@@ -1,6 +1,7 @@
 name: ssrf
 version: 2.0.0
 description: Server-Side Request Forgery — internal probing, cloud metadata attacks, URL parser bypasses, protocol smuggling
+safety_tier: intrusive
 bounded_context: NetworkContext
 owasp_wstg:
   - WSTG-INPV-19

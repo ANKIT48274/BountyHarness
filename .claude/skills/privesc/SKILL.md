@@ -1,3 +1,8 @@
+---
+name: privesc
+description: Privilege escalation enumeration and exploitation — Linux SUID, sudo, capabilities, cron, Docker/K8s escape
+---
+
 # Privesc
 
 ## Overview

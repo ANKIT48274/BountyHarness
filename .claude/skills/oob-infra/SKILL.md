@@ -1,3 +1,8 @@
+---
+name: oob-infra
+description: Manage out-of-band callback infrastructure for detecting blind vulnerabilities via interactsh.
+---
+
 # OOB Infrastructure
 
 ## Overview

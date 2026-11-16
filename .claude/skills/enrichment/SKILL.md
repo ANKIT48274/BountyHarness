@@ -1,3 +1,8 @@
+---
+name: enrichment
+description: Post-processing enrichment for verified findings — report drafts, PoC diffs, and triage chips (Kritt-style post-scripts with supplemental re-runs).
+---
+
 # Enrichment
 
 ## Overview

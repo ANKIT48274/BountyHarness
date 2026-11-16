@@ -1,6 +1,7 @@
 name: auth
 version: 2.0.0
 description: Authentication and authorization testing — JWT attacks, OAuth 2.0, SAML, session management, 2FA bypass, password reset, IDOR, privilege escalation
+safety_tier: intrusive
 bounded_context: AuthContext
 owasp_wstg:
   - WSTG-ATHN-01
@@ -37,6 +38,7 @@ input_files:
   - js_files.txt
 workflows:
   token-extract:
+    safety_tier: passive
     description: Extract and analyze JWT tokens from parameterized URLs
     inputs: [OUTDIR]
     command: |
@@ -50,6 +52,7 @@ workflows:
       if_no_findings: oauth-redirects
 
   jwt-analysis:
+    safety_tier: passive
     description: Decode a supplied JWT and optionally generate safe attack variants.
     inputs: [JWT_TOKEN, OUTDIR, CONTEXT]
     command: |

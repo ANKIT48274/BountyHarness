@@ -1,3 +1,8 @@
+---
+name: reporting
+description: Bug bounty report generation, CVSS scoring, evidence packaging, platform-specific exports
+---
+
 # Reporting
 
 ## Overview

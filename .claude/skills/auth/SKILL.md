@@ -1,3 +1,8 @@
+---
+name: auth
+description: Authentication and authorization testing — JWT attacks, OAuth 2.0, SAML, session management, 2FA bypass, password reset, IDOR, privilege escalation
+---
+
 # Auth
 
 ## Overview

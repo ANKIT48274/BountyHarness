@@ -1,3 +1,8 @@
+---
+name: osint
+description: Open Source Intelligence — GitHub dorking, Google dorks, Shodan/Censys, email discovery, WHOIS history, certificate transparency, leaked credentials
+---
+
 # Osint
 
 ## Overview

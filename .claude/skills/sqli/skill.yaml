@@ -1,6 +1,7 @@
 name: sqli
 version: 2.0.0
 description: SQL Injection detection and exploitation — error-based, UNION, Boolean blind, time-based, OOB, stacked queries, NoSQL
+safety_tier: intrusive
 bounded_context: InjectionContext
 owasp_wstg:
   - WSTG-INPV-05

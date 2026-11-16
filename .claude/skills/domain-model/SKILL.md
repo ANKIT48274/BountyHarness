@@ -1,3 +1,8 @@
+---
+name: domain-model
+description: Application-agnostic domain archetype classification for bug bounty targets. Infers what the target does and maps detected infrastructure to attack surfaces before vulnerability testing.
+---
+
 # Domain Model
 
 ## Overview

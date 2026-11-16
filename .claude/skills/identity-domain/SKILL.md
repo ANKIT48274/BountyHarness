@@ -1,3 +1,8 @@
+---
+name: identity-domain
+description: 'No-creds identity infrastructure recon on external scope: NTLM challenge leaks, ADCS web enrollment exposure, ADFS/SAML endpoints, Entra tenant metadata, governed Kerberos username enumeration, SPN OSINT. Header/DNS/XML level only; no relay, coercion, or credential attacks.'
+---
+
 # Identity Domain Recon
 
 ## Overview

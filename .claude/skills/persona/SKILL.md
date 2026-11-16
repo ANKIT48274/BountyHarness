@@ -1,3 +1,8 @@
+---
+name: persona
+description: Manage authenticated testing personas with secure credential storage, session validation, and per-persona header export for replay-based security testing.
+---
+
 # Persona
 
 ## Overview

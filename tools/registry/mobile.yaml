@@ -43,8 +43,8 @@ registry:
       repo: github.com/MobSF/mobsfscan
       install_method: pipx
       binary: mobsfscan
-      version_cmd: "mobsfscan --version"
-      health_cmd: "mobsfscan --version"
+      version_cmd: "pipx list 2>/dev/null | grep -oE 'mobsfscan [0-9.]+' | head -1"
+      health_cmd: "mobsfscan --help"
       capabilities:
         - mobile_security_scan
         - static_analysis
@@ -64,8 +64,8 @@ registry:
       repo: github.com/dwisiswant0/apkleaks
       install_method: pipx
       binary: apkleaks
-      version_cmd: "apkleaks --version"
-      health_cmd: "apkleaks --version"
+      version_cmd: "pipx list 2>/dev/null | grep -oE 'apkleaks [0-9.]+' | head -1"
+      health_cmd: "apkleaks --help"
       capabilities:
         - apk_leak_finder
         - secret_scan
@@ -84,7 +84,7 @@ registry:
       repo: github.com/frida/frida
       install_method: pipx
       binary: frida
-      version_cmd: "frida --version"
+      version_cmd: "pipx list 2>/dev/null | grep -oE 'frida-tools [0-9.]+' | head -1"
       health_cmd: "frida --version"
       capabilities:
         - dynamic_instrumentation
@@ -103,8 +103,8 @@ registry:
       repo: github.com/sensepost/objection
       install_method: pipx
       binary: objection
-      version_cmd: "objection --version"
-      health_cmd: "objection --version"
+      version_cmd: "pipx list 2>/dev/null | grep -oE 'objection [0-9.]+' | head -1"
+      health_cmd: "objection --help"
       capabilities:
         - runtime_exploration
         - ios_runtime

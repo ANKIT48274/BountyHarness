@@ -17,9 +17,42 @@ The harness is deliberately small:
 | `bin/bb-run` | Runs one command from `.claude/skills/<skill>/skill.yaml`. Traces every run; circuit-breaker blocks a target after repeated consecutive failures (`tools/circuit_breaker.py reset` clears). |
 | `bin/bb-hunt` | Autonomous campaign: bootstraps context from a URL, then runs recon → plan → execute → report unattended (thin wrapper over the `campaign` skill). |
 | `bin/bb-tools` | Install, update, verify, and lock external tools. |
+| `bin/bb-netns` | Inspect, stop, and reap isolated network-namespace runs. |
 | `tools/validate_skills.py` | Scores skill package quality. |
 
 Do not move bug bounty logic into the harness. Add or change workflows inside the relevant skill package.
+
+## OpenCode Integration
+
+OpenCode V2 reads this `AGENTS.md` directly and does not use `CLAUDE.md` as a
+fallback. Claude Code support is unchanged: `CLAUDE.md` imports this file.
+
+| OpenCode file | Purpose |
+|---|---|
+| `opencode.json` | Project config: default orchestrator, skill source, permissions, watcher ignores. |
+| `.opencode/agents/*.md` | Primary orchestrator plus eight specialized subagents. |
+| `.opencode/commands/*.md` | Native `/bb-*` slash commands. |
+| `.claude/skills/` | Discovered natively as an OpenCode project compatibility source. |
+| `docs/opencode/AGENT_RULES.md` | Preflight, approval, evidence, and secret rules. |
+| `docs/opencode/AGENT_CATALOG.md` | Agent roles, skill allowlists, and delegation flow. |
+| `docs/opencode/SKILLS.md` | Skill inventory, categories, and safety-tier mapping. |
+| `OPENCODE_SETUP.md` | Install, configuration, verification, and troubleshooting. |
+| `OPENCODE_USAGE.md` | Agents, commands, CLI usage, scope and approval workflow. |
+
+Operational rules for OpenCode agents:
+
+- Use the `bounty-harness` primary agent for orchestration and delegate to the
+  matching specialized subagent.
+- Prefer `bin/bb-run <skill> <workflow>`; the `bb-*` binaries are symlinked onto
+  `PATH` by `install.sh`, otherwise call them from `bin/`.
+- Skills are advertised only when `SKILL.md` has YAML frontmatter with a
+  `description`. Run `python3 tools/opencode/sync_skills.py --check` after
+  adding or editing a skill; `--apply` adds missing frontmatter without changing
+  the body, scripts, payloads, or runbooks.
+- `opencode.json` asks before `bb-run`/`bb-hunt`/network scanners and denies
+  secret-file reads, credential exfiltration commands, pushes, and destructive
+  shell operations. Do not weaken these rules to make automation easier.
+- Treat `docs/opencode/AGENT_RULES.md` as mandatory safety policy.
 
 ## Tool Registry
 
@@ -184,6 +217,8 @@ Always prefer `bin/bb-run <skill> <workflow>` after context is initialized. If y
 | 44 | `triage-validation` | Pre-report validation gate: 7-question gate and submission checklists. |
 | 45 | `identity-domain` | No-creds identity infra recon: NTLM leaks, ADCS/ADFS endpoints, Entra tenant metadata, SPN OSINT. |
 | 46 | `binary-analysis` | Desktop/native binary triage and MCP-driven x64dbg dynamic analysis for shipped executables. |
+| 47 | `enrichment` | Post-processing enrichment for verified findings — report drafts, PoC diffs, and triage chips. |
+| 48 | `sast` | SAST integration with SARIF parsing (Semgrep, Trivy, Bearer). |
 
 ## Dispatch Rules
 
@@ -249,6 +284,11 @@ Do not report scanner output as a finding until impact is verified and false-pos
 
 ## Safety Rules
 
+- Non-passive workflows execute inside a rootless user+network namespace with
+  nft default-deny (IPv4/IPv6), seccomp raw-socket denial, and a single AF_UNIX
+  egress path to the scope-enforcing proxy. Missing isolation is a hard failure
+  (exit 8); do not add an agent-settable host-network bypass. Passive-tier
+  workflows remain host-side by design (third-party OSINT only).
 - Check authorization and scope before intrusive, authenticated, destructive, or high-volume workflows.
 - Use rate limits from context or the workflow.
 - Do not test explicit out-of-scope hosts.
@@ -263,4 +303,13 @@ make test
 python3 tools/validate_skills.py
 ```
 
+OpenCode integration checks (local only, no target traffic):
+
+```bash
+make opencode-check
+opencode debug agents
+opencode debug config
+```
+
 Expected healthy state: all skills pass the validator and Python scripts compile.
+The skill validator may report pre-existing quality warnings; do not hide them.

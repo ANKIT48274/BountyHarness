@@ -26,6 +26,14 @@ Modern bug bounty work is not one scanner. It is a loop:
 
 BountyHarness packages that loop into reusable, inspectable workflows so an agent does not need to invent a new pipeline every time.
 
+### Agent harness integrations
+
+- **Claude Code:** `CLAUDE.md` + `.claude/skills/` (canonical assets, unchanged).
+- **OpenCode V2:** native project config in `opencode.json`, nine agents in
+  `.opencode/agents/`, eight `/bb-*` commands, and automatic discovery of all
+  48 skills. See [`OPENCODE_SETUP.md`](OPENCODE_SETUP.md) and
+  [`OPENCODE_USAGE.md`](OPENCODE_USAGE.md).
+
 ## Demo
 
 ![BountyHarness terminal demo](docs/demo.gif)
@@ -38,7 +46,7 @@ Reproducible with [VHS](https://github.com/charmbracelet/vhs): `vhs docs/demo.ta
 flowchart LR
     A[bin/bb-init<br/>RunContext] --> B[bin/bb-validate]
     B --> C[bin/bb-run<br/>workflow executor]
-    C --> D[(46 skill packages)]
+    C --> D[(48 skill packages)]
     B --> E[bin/bb-hunt<br/>autonomous campaign]
     E --> C
     C --> F[.bb/traces<br/>circuit breaker]

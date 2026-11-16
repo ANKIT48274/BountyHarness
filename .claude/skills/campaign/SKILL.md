@@ -1,3 +1,8 @@
+---
+name: campaign
+description: Autonomous end-to-end campaign orchestrator — recon, domain modeling, planning, priority-ordered multi-skill execution, and reporting from a single target, bounded by a time budget.
+---
+
 # Campaign — Autonomous End-to-End Bug Bounty Run
 
 ## Overview

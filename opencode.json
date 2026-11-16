@@ -1,0 +1,1120 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "bounty-harness",
+  "skills": [
+    ".claude/skills"
+  ],
+  "instructions": [
+    "docs/opencode/AGENT_RULES.md"
+  ],
+  "watcher": {
+    "ignore": [
+      ".bb/**",
+      "output/**",
+      "engagements/**",
+      "evidence/**",
+      "artifacts/**",
+      "captures/**",
+      "runs/**",
+      "scans/**",
+      "reports/**"
+    ]
+  },
+  "permissions": [
+    {
+      "action": "external_directory",
+      "resource": "*",
+      "effect": "ask"
+    },
+    {
+      "action": "external_directory",
+      "resource": "/tmp/opencode/*",
+      "effect": "allow"
+    },
+    {
+      "action": "read",
+      "resource": "*",
+      "effect": "allow"
+    },
+    {
+      "action": "read",
+      "resource": "*.env",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*.env.*",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*.env.example",
+      "effect": "allow"
+    },
+    {
+      "action": "read",
+      "resource": ".bb/context.env",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*.bb/context.env",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": ".bb/context.json",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*.bb/context.json",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*id_rsa*",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*.ssh/*",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*.git-credentials",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*.netrc",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*.pem",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*.key",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*credentials*.json",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*token*.json",
+      "effect": "deny"
+    },
+    {
+      "action": "edit",
+      "resource": "*.env",
+      "effect": "deny"
+    },
+    {
+      "action": "edit",
+      "resource": "*.env.*",
+      "effect": "deny"
+    },
+    {
+      "action": "edit",
+      "resource": ".env.example",
+      "effect": "allow"
+    },
+    {
+      "action": "edit",
+      "resource": ".bb/context.env",
+      "effect": "deny"
+    },
+    {
+      "action": "edit",
+      "resource": ".bb/context.json",
+      "effect": "deny"
+    },
+    {
+      "action": "edit",
+      "resource": "*id_rsa*",
+      "effect": "deny"
+    },
+    {
+      "action": "edit",
+      "resource": "*.pem",
+      "effect": "deny"
+    },
+    {
+      "action": "edit",
+      "resource": "*.key",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "sudo *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "su *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "doas *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "shutdown *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "reboot *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "mkfs*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "dd *of=/dev/*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "rm -rf /",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "rm -fr /",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "rm -rf $HOME",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "rm -rf ~",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "git push*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "git reset --hard*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "git clean *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "curl * | sh*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "curl * | bash*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "wget * | sh*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "wget * | bash*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "cat *context.env*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "cat *.env*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "cat *id_rsa*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "cat *.ssh/*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "cat *.pem*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "printenv*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "env",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "gh auth token*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "curl *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "wget *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "nmap *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "nuclei *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "ffuf *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "feroxbuster *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "sqlmap *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "dalfox *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "subfinder *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "amass *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "httpx *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "katana *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "naabu *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "interactsh-client *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-tools install*",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-tools update*",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-hunt *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "python3 .claude/skills/*",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "bash .claude/skills/*",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "sh .claude/skills/*",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "./.claude/skills/*",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run list*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run * list*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run --help*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run --version*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run scope-manager *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run planner *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run domain-model *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run reporting *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run coverage *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run standard-catalog *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run technique-kb *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run program-memory *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run asset-graph *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run vuln-intel *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run triage-validation *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run impact-verifier *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run enrichment *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run evaluation-harness *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run auto-research *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run skill-scientist *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run agent-safety *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run sast *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run recon passive-subdomains*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run recon ct-index-enum*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-run osint *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-init *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-validate*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-tools list*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-tools doctor*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-tools explain*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-tools verify*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "bb-tools lock*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "make test*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "make validate*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "make lint*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "make audit*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "make doctor*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "python3 tools/validate_skills.py*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "python3 tools/opencode/*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "git status*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "git diff*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "git log*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "git show*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "git branch*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "ls*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "pwd*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "head*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "tail*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "grep*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "rg*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "find*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "tree*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "wc*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "file *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "jq*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "python3 -m py_compile*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "python3 -m json.tool*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "*context.env*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*approvals*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*.ssh/*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*id_rsa*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*id_ed25519*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*.pem*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*.key*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*printenv*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*COOKIE_JAR*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*AUTH_HEADER*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*BB_APPROVED_TIER*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*BB_SCOPE_UNSTRUCTURED_OK*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*BB_ALLOW_MISSING_TOOLS*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*BB_SCOPE_PROXY*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*python3 .claude/skills/*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*bash .claude/skills/*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*sh .claude/skills/*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*python3 *.claude/skills/*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*bash *.claude/skills/*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*sh *.claude/skills/*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*subfinder *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*httpx *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*nuclei *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*naabu *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*katana *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*dalfox *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*ffuf *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*feroxbuster *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*sqlmap *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*amass *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*nmap *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*masscan *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*interactsh-client *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*tlsx *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*dnsx *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*shuffledns *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*puredns *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*kxss *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*xsstrike *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*arjun *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*paramspider *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*dirsearch *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*gobuster *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*wfuzz *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*nikto *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*whatweb *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*wpscan *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*crlfuzz *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*smuggler *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*h2csmuggler *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*kiterunner *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*gau *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*waybackurls *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*hakrawler *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*cariddi *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*urlfinder *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*uncover *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*cloudlist *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*asnmap *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*alterx *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*gotator *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*dnsgen *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*assetfinder *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*httprobe *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*massdns *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*x8 *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*cloudfox *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*prowler *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*scout *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*az *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*gcloud *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*kubectl *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*aws *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*frida *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*objection *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*playwright *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*curl *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*wget *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*ncat *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*netcat *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*socat *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*telnet *",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*pip install*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*pipx install*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*npm install*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*cargo install*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*go install*",
+      "effect": "deny"
+    }
+  ]
+}

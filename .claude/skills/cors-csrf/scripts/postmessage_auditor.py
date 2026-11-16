@@ -22,6 +22,32 @@ import urllib.parse
 from typing import Optional
 
 
+def isolation_proxy():
+    """Playwright proxy settings when running inside bb-run's isolated netns."""
+    if os.environ.get("BB_ISOLATED") != "1":
+        return None
+    server = os.environ.get("HTTPS_PROXY") or os.environ.get("HTTP_PROXY")
+    if not server:
+        return None
+    return {"server": server, "bypass": "<-loopback>"}
+
+
+def prefer_complete_playwright():
+    """Prefer a Playwright install that ships the Node driver (pipx/venv)."""
+    import glob
+
+    override = os.environ.get("BB_PLAYWRIGHT_SITE")
+    if override and os.path.isdir(override):
+        sys.path.insert(0, override)
+        return
+    for base in (os.path.expanduser("~/.local/share/pipx/venvs"),
+                 os.path.expanduser("~/.local/pipx/venvs")):
+        for cand in glob.glob(os.path.join(base, "playwright", "lib", "python*", "site-packages")):
+            if os.path.isdir(os.path.join(cand, "playwright", "driver")):
+                sys.path.insert(0, cand)
+                return
+
+
 FINDING_TEMPLATES = {
     "no_origin_check": {
         "severity": "HIGH",
@@ -249,6 +275,7 @@ def run_audit(url: str, context: Optional[str], timeout: int, dry_run: bool) -> 
         }]
 
     try:
+        prefer_complete_playwright()
         from playwright.sync_api import sync_playwright
     except ImportError:
         sys.stderr.write("[!] Playwright not installed. Install with: pip install playwright && playwright install chromium\n")
@@ -266,7 +293,7 @@ def run_audit(url: str, context: Optional[str], timeout: int, dry_run: bool) -> 
 
     with sync_playwright() as p:
         sys.stderr.write("[*] Launching headless Chromium...\n")
-        browser = p.chromium.launch(headless=True)
+        browser = p.chromium.launch(headless=True, proxy=isolation_proxy())
         page = browser.new_page(viewport={"width": 1440, "height": 900})
 
         try:
