@@ -36,7 +36,7 @@ import sys
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 from urllib.parse import urljoin, urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -53,8 +53,8 @@ class ScopeBlocked(Exception):
 class Hop:
     url: str
     status: int
-    location: Optional[str] = None
-    pinned_ip: Optional[str] = None
+    location: str | None = None
+    pinned_ip: str | None = None
 
 
 @dataclass
@@ -94,7 +94,7 @@ class _PinnedHTTPConnection(http.client.HTTPConnection):
 
 class _PinnedHTTPSConnection(http.client.HTTPSConnection):
     def __init__(self, host: str, port: int, connect_ip: str, timeout: float = 15.0,
-                 context: Optional[ssl.SSLContext] = None):
+                 context: ssl.SSLContext | None = None):
         super().__init__(host, port, timeout=timeout, context=context)
         self._connect_ip = connect_ip
 
@@ -123,7 +123,7 @@ def _is_forbidden_ip(ip: ipaddress._BaseAddress) -> bool:
 
 
 def resolve_pinned(host: str, port: int, allow_private: bool,
-                   dns_override: Optional[Dict[str, str]] = None) -> str:
+                   dns_override: Dict[str, str] | None = None) -> str:
     """Resolve host once, validate every address, return the address to pin."""
     override = (dns_override or {}).get(host.lower())
     if override:
@@ -154,9 +154,9 @@ def resolve_pinned(host: str, port: int, allow_private: bool,
     return addrs[0]
 
 
-def _request_once(url: str, method: str, headers: Dict[str, str], body: Optional[bytes],
+def _request_once(url: str, method: str, headers: Dict[str, str], body: bytes | None,
                   timeout: float, allow_private: bool,
-                  dns_override: Optional[Dict[str, str]]) -> Tuple[int, List[Tuple[str, str]], bytes, str]:
+                  dns_override: Dict[str, str] | None) -> Tuple[int, List[Tuple[str, str]], bytes, str]:
     parts = urlsplit(url)
     scheme = (parts.scheme or "").lower()
     host = parts.hostname or ""
@@ -186,9 +186,9 @@ def _request_once(url: str, method: str, headers: Dict[str, str], body: Optional
 
 
 def fetch(scope: scope_guard.Scope, url: str, method: str = "GET",
-          headers: Optional[Dict[str, str]] = None, body: Optional[bytes] = None,
+          headers: Dict[str, str] | None = None, body: bytes | None = None,
           timeout: float = 15.0, max_redirects: int = 5, allow_private: bool = False,
-          dns_override: Optional[Dict[str, str]] = None) -> Result:
+          dns_override: Dict[str, str] | None = None) -> Result:
     allowed, reason = scope.check_url(url)
     if not allowed:
         raise ScopeBlocked(f"initial URL blocked: {reason}")
@@ -229,7 +229,7 @@ def _redact_headers(headers: Dict[str, str]) -> List[str]:
 
 
 def save_evidence(result: Result, out_dir: Path, request_headers: Dict[str, str],
-                  request_body: Optional[bytes]) -> Path:
+                  request_body: bytes | None) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     req = [f"{'GET'} {result.url} HTTP/1.1"] + _redact_headers(request_headers)
     if request_body:

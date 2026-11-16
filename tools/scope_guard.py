@@ -44,11 +44,10 @@ import argparse
 import ipaddress
 import json
 import os
-import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 from urllib.parse import urlsplit
 
 ALLOWED_SCHEMES = {"http", "https", "ws", "wss"}
@@ -70,12 +69,12 @@ SECTION_KEYS = {
 @dataclass
 class Entry:
     raw: str
-    scheme: Optional[str] = None
-    host: Optional[str] = None
-    network: Optional[ipaddress._BaseNetwork] = None
+    scheme: str | None = None
+    host: str | None = None
+    network: ipaddress._BaseNetwork | None = None
     wildcard: bool = False
-    port: Optional[int] = None
-    path: Optional[str] = None
+    port: int | None = None
+    path: str | None = None
 
     def describe(self) -> str:
         bits = [self.raw]
@@ -100,17 +99,17 @@ class Scope:
     mobile_apps: List[str] = field(default_factory=list)
     apis: List[Entry] = field(default_factory=list)
     comments: List[str] = field(default_factory=list)
-    path: Optional[str] = None
+    path: str | None = None
 
     # ---------- parsing ----------
 
     @classmethod
-    def from_file(cls, path: str) -> "Scope":
+    def from_file(cls, path: str) -> Scope:
         text = Path(path).read_text(encoding="utf-8", errors="replace")
         return cls.from_text(text, path=path)
 
     @classmethod
-    def from_text(cls, text: str, path: Optional[str] = None) -> "Scope":
+    def from_text(cls, text: str, path: str | None = None) -> Scope:
         scope = cls(path=path)
         section = "in_scope"
         for line in text.splitlines():
@@ -148,7 +147,7 @@ class Scope:
         return scope
 
     @staticmethod
-    def _parse_entry(raw: str) -> Optional[Entry]:
+    def _parse_entry(raw: str) -> Entry | None:
         item = raw.strip().strip(",")
         if not item:
             return None
@@ -193,8 +192,8 @@ class Scope:
     def has_entries(self) -> bool:
         return bool(self.in_scope)
 
-    def _entry_matches(self, entry: Entry, host: str, port: Optional[int],
-                       path: Optional[str], scheme: Optional[str]) -> bool:
+    def _entry_matches(self, entry: Entry, host: str, port: int | None,
+                       path: str | None, scheme: str | None) -> bool:
         if entry.scheme and scheme:
             if entry.scheme != scheme:
                 # ws(s) shares transport with http(s) for matching purposes
@@ -228,8 +227,8 @@ class Scope:
             return host.endswith("." + entry.host)
         return False
 
-    def check(self, host: str, port: Optional[int] = None, path: Optional[str] = None,
-              scheme: Optional[str] = None) -> Tuple[bool, str]:
+    def check(self, host: str, port: int | None = None, path: str | None = None,
+              scheme: str | None = None) -> Tuple[bool, str]:
         host = _normalize_host(host)
         if not host:
             return False, "empty or invalid host"
@@ -261,8 +260,8 @@ class Scope:
             port = 443 if scheme in ("https", "wss") else 80
         return self.check(parts.hostname, port, parts.path or "/", scheme)
 
-    def check_target(self, target: str, default_port: Optional[int] = None,
-                     default_scheme: Optional[str] = None) -> Tuple[bool, str]:
+    def check_target(self, target: str, default_port: int | None = None,
+                     default_scheme: str | None = None) -> Tuple[bool, str]:
         """Check a bare host, host:port or URL (as stored in $TARGET).
 
         `default_port` / `default_scheme` come from the run context
@@ -311,7 +310,7 @@ def _normalize_host(host: str) -> str:
         return host
 
 
-def _split_host_port(value: str) -> Tuple[str, Optional[int]]:
+def _split_host_port(value: str) -> Tuple[str, int | None]:
     value = value.strip()
     if value.startswith("["):
         end = value.find("]")

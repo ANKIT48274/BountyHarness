@@ -36,7 +36,7 @@ import signal
 import subprocess
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 NFT_RULES = """
@@ -253,7 +253,7 @@ def main() -> int:
     env["BB_ISOLATION_BRIDGE_PORT"] = str(bridge_port)
     env["BB_SCOPE_PROXY_ACTIVE"] = "1"
 
-    started = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    started = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     state.write_text(json.dumps({
         "pid": os.getpid(),
         "bridge_port": int(bridge_port),

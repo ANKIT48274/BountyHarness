@@ -83,7 +83,7 @@ def _ensure_nl(line):
 
 
 def insert_top_level(lines, tier):
-    if any(l.startswith("safety_tier:") for l in lines):
+    if any(line.startswith("safety_tier:") for line in lines):
         return lines, False
     for i, line in enumerate(lines):
         if line.startswith("description:"):
@@ -111,12 +111,12 @@ def insert_workflow_tier(lines, wf, tier):
     # determine the workflow block extent (next line with exactly 2-space key)
     end = len(lines)
     for j in range(start + 1, len(lines)):
-        l = lines[j]
-        if l.startswith("  ") and not l.startswith("    ") and l.strip() and not l.lstrip().startswith("#"):
+        candidate = lines[j]
+        if candidate.startswith("  ") and not candidate.startswith("    ") and candidate.strip() and not candidate.lstrip().startswith("#"):
             end = j
             break
     block = lines[start:end]
-    if any(l.strip().startswith("safety_tier:") for l in block):
+    if any(line.strip().startswith("safety_tier:") for line in block):
         return lines, False
     lines[start] = _ensure_nl(lines[start])
     lines.insert(start + 1, f"    safety_tier: {tier}\n")
