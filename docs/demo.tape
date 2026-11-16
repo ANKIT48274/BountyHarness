@@ -43,6 +43,6 @@ Enter
 Sleep 1400ms
 
 Ctrl+L
-Type "# github.com/Mr-Neutr0n/bounty-harness  -  MIT  -  brew install mr-neutr0n/tap/bounty-harness"
+Type "# github.com/ANKIT48274/BountyHarness  -  MIT  -  ./install.sh"
 Enter
 Sleep 2000ms

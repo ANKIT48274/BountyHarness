@@ -4,7 +4,7 @@
 # Usage:
 #   ./install.sh                              # install into current dir if empty
 #   INSTALL_DIR=~/tools/bounty-harness ./install.sh
-#   curl -fsSL https://raw.githubusercontent.com/Mr-Neutr0n/bounty-harness/main/install.sh | sh -s --
+#   curl -fsSL https://raw.githubusercontent.com/ANKIT48274/BountyHarness/main/install.sh | sh -s --
 #
 # The pipe form works because this script is POSIX sh and never reads stdin.
 # Nothing here pipes this script's own download to a shell twice; the clone is
@@ -13,7 +13,7 @@
 set -eu
 
 # Override for testing branches/forks: BB_INSTALL_REPO_URL=/local/path ./install.sh
-REPO_URL="${BB_INSTALL_REPO_URL:-https://github.com/Mr-Neutr0n/bounty-harness.git}"
+REPO_URL="${BB_INSTALL_REPO_URL:-https://github.com/ANKIT48274/BountyHarness.git}"
 REPO_NAME="bounty-harness"
 BIN_NAMES="bb-init bb-validate bb-run bb-hunt bb-tools bb-netns"
 
@@ -28,8 +28,10 @@ elif [ ! -d "$(pwd)" ] || [ -z "$(ls -A . 2>/dev/null)" ]; then
   INSTALL_DIR="$(pwd)/$REPO_NAME"
 elif [ -d "./$REPO_NAME/.git" ]; then
   INSTALL_DIR="$(pwd)/$REPO_NAME"
+elif [ -d "./BountyHarness/.git" ]; then
+  INSTALL_DIR="$(pwd)/BountyHarness"
 elif [ -d "./.git" ] && git -C . remote get-url origin >/dev/null 2>&1 \
-     && git -C . remote get-url origin | grep -q "bounty-harness"; then
+     && git -C . remote get-url origin | grep -qiE 'bounty[-_]?harness'; then
   INSTALL_DIR="$(pwd)"
 else
   die "current dir is not empty. cd into an empty dir, an existing bounty-harness clone, or set: INSTALL_DIR=/path ./install.sh"

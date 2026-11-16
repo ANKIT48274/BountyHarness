@@ -1,8 +1,9 @@
 # Homebrew formula for BountyHarness.
 #
-# Tap: Mr-Neutr0n/homebrew-bounty-harness
-#   brew install Mr-Neutr0n/bounty-harness/bounty-harness
-#   (also: brew tap Mr-Neutr0n/bounty-harness && brew install bounty-harness)
+# No public tap is published yet. The formula is kept in-repo so a maintainer
+# can publish one:
+#   brew tap <owner>/bounty-harness https://github.com/<owner>/homebrew-bounty-harness
+#   brew install <owner>/bounty-harness/bounty-harness
 #
 # RELEASE CHECKLIST (maintainer):
 #   1. Bump VERSION file and this formula's version to the same value.
@@ -15,9 +16,9 @@
 #        shasum -a 256 bh.tgz          # must match the value above
 
 class BountyHarness < Formula
-  desc "Agent harness for authorized bug bounty work: 46 skill packages, safety tiers, tracing"
-  homepage "https://github.com/Mr-Neutr0n/bounty-harness"
-  url "https://github.com/Mr-Neutr0n/bounty-harness/archive/refs/tags/v#{version}.tar.gz"
+  desc "Agent harness for authorized bug bounty work: 48 skill packages, safety tiers, tracing"
+  homepage "https://github.com/ANKIT48274/BountyHarness"
+  url "https://github.com/ANKIT48274/BountyHarness/archive/refs/tags/v#{version}.tar.gz"
   version "3.1.0"
   # PLACEHOLDER - compute on release with: shasum -a 256 on the tagged tarball.
   # CI prints the exact digest into the release run summary.
@@ -34,7 +35,7 @@ class BountyHarness < Formula
     libexec.install Dir["*"]
 
     bin_name = OS.mac? ? "" : "" # both architectures use the same scripts
-    %w[bb-init bb-validate bb-run bb-hunt bb-tools].each do |b|
+    %w[bb-init bb-validate bb-run bb-hunt bb-tools bb-netns].each do |b|
       (libexec/"bin").chmod 0755 if File.executable?(libexec/"bin"/b)
       bin.install_symlink libexec/"bin"/b
     end

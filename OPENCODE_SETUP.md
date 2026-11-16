@@ -27,7 +27,7 @@ used. The integration relies on V2 `permissions`, `agents`, `commands`,
 ## 2. Install
 
 ```bash
-git clone https://github.com/zyphr-labs/bounty-harness.git ~/BountyHarness
+git clone https://github.com/ANKIT48274/BountyHarness.git ~/BountyHarness
 cd ~/BountyHarness
 ./install.sh          # optional: checks deps and symlinks bb-* onto PATH
 ```

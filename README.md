@@ -1,9 +1,9 @@
 # BountyHarness
 
-[![CI](https://github.com/Mr-Neutr0n/bounty-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/Mr-Neutr0n/bounty-harness/actions/workflows/ci.yml)
+[![CI](https://github.com/ANKIT48274/BountyHarness/actions/workflows/ci.yml/badge.svg)](https://github.com/ANKIT48274/BountyHarness/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
-![Skills](https://img.shields.io/badge/skill_packages-45-8A2BE2)
+![Skills](https://img.shields.io/badge/skill_packages-48-8A2BE2)
 
 **BountyHarness** is an open-source agent harness for authorized bug bounty and application security research.
 
@@ -51,7 +51,7 @@ flowchart LR
     E --> C
     C --> F[.bb/traces<br/>circuit breaker]
     C --> G[evidence + reports]
-    H[(tools/registry<br/>99 tools)] --> C
+    H[(tools/registry<br/>100 tools)] --> C
 ```
 
 - **Thin harness** (`bin/`): context init, validation, workflow execution, autonomous campaigns. No security logic lives here.
@@ -63,26 +63,26 @@ flowchart LR
 ### curl installer (macOS + Linux)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Mr-Neutr0n/bounty-harness/main/install.sh | sh -s --
+curl -fsSL https://raw.githubusercontent.com/ANKIT48274/BountyHarness/main/install.sh | sh -s --
 ```
 
 or from a clone:
 
 ```bash
-git clone https://github.com/Mr-Neutr0n/bounty-harness.git && cd bounty-harness
+git clone https://github.com/ANKIT48274/BountyHarness.git && cd BountyHarness
 ./install.sh                      # into this dir, or set INSTALL_DIR=/path
 uninstall.sh                      # remove symlinks; PURGE=1 to delete the tree
 ```
 
-The installer verifies python3 >= 3.11 + PyYAML + git (printing exact fixes for anything missing), clones or pulls the repo, smoke-tests it, and symlinks the five binaries into `~/.local/bin` (falls back to `/usr/local/bin`).
+The installer verifies python3 >= 3.11 + PyYAML + git (printing exact fixes for anything missing), clones or pulls the repo, smoke-tests it, and symlinks the six binaries (`bb-init`, `bb-validate`, `bb-run`, `bb-hunt`, `bb-tools`, `bb-netns`) into `~/.local/bin` (falls back to `/usr/local/bin`).
 
 ### Homebrew
 
-```bash
-brew install mr-neutr0n/bounty-harness/bounty-harness
-```
-
-The formula lives in the [homebrew-bounty-harness](https://github.com/Mr-Neutr0n/homebrew-bounty-harness) repo; pushing a `v*` tag to the main repo builds the release archive and its sha256 automatically.
+The Homebrew formula is kept in this repo at
+[`packaging/homebrew/bounty-harness.rb`](packaging/homebrew/bounty-harness.rb).
+No public tap is published yet, so there is no `brew install` shortcut today;
+use the curl installer or a clone. See the formula's release checklist if you
+want to publish a tap yourself.
 
 ## Quick Start
 
@@ -98,7 +98,7 @@ bb-hunt https://example.com --time-budget 1h   # autonomous campaign
 - **48 skill packages** covering recon, XSS, SQLi, SSRF, RCE, auth, API, file upload, CORS/CSRF, race conditions, cloud, mobile, LLM security, HTTP protocol bugs, CI/CD, GraphQL, web3, identity infrastructure, reporting, and more.
 - **Autonomous campaigns** with `bin/bb-hunt`: context init, recon, domain modeling, technique matching, planning, priority-ordered execution, and reporting from one URL.
 - **Thin harness, fat skills**: the harness dispatches; the skills contain the security logic.
-- **Tool registry** for install, health checks, version locking, capability mapping, and risk tiers across 99 external tools.
+- **Tool registry** for install, health checks, version locking, capability mapping, and risk tiers across 100 external tools.
 - **Safety model** with passive, active-safe, intrusive, and destructive-manual tiers; circuit breaker blocks a target after repeated consecutive failures.
 - **Scope-aware workflows** with rate limits, local-only output, and explicit evidence standards.
 - **Planning and knowledge systems**: domain model, technique KB, coverage ledger, program memory (with negative-result tracking), asset graph, traffic corpus, and vulnerability intelligence.
